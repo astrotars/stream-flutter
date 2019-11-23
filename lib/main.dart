@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_the_stream/search.dart';
 import 'package:flutter_the_stream/users.dart';
 
 import 'home.dart';
 import 'new_activity.dart';
+import 'people.dart';
+import 'profile.dart';
 import 'stream_service.dart';
 
 void main() => runApp(MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Homepage'),
+      home: MyHomePage(title: 'The Stream'),
     );
   }
 }
@@ -62,29 +63,38 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     if (_user != null && _streamToken != null) {
+      var body;
+      if (_selectedIndex == 0) {
+        body = Home(user: _user, streamToken: _streamToken);
+      } else if (_selectedIndex == 1) {
+        body = Profile(user: _user, streamToken: _streamToken);
+      } else {
+        body = People(user: _user, streamToken: _streamToken);
+      }
+
       return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: _selectedIndex == 0 ? Home(user: _user, streamToken: _streamToken) : Search(),
-        floatingActionButton: Builder(
-          builder: (context) {
-            return FloatingActionButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => NewActivity(user: _user, streamToken: _streamToken)),
-                );
+        body: body,
+        floatingActionButton: _selectedIndex == 1
+            ? Builder(
+                builder: (context) {
+                  return FloatingActionButton(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => NewActivity(user: _user, streamToken: _streamToken)),
+                      );
 
-                Scaffold.of(context)
-                  ..removeCurrentSnackBar()
-                  ..showSnackBar(SnackBar(content: Text('Message Posted. Pull to Refresh')));
-              },
-              tooltip: 'Increment',
-              child: Icon(Icons.add),
-            );
-          },
-        ),
+                      Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
+                    },
+                    tooltip: 'Increment',
+                    child: Icon(Icons.add),
+                  );
+                },
+              )
+            : null,
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -92,8 +102,12 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Home'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              title: Text('Search'),
+              icon: Icon(Icons.person),
+              title: Text('Profile'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people),
+              title: Text('People'),
             ),
           ],
           currentIndex: _selectedIndex,

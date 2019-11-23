@@ -38,6 +38,19 @@ class MainActivity : FlutterActivity() {
           call.argument<String>("token")!!
         )
         result.success(ObjectMapper().writeValueAsString(activities))
+      } else if (call.method == "getTimeline") {
+        val activities = getTimeline(
+          call.argument<String>("user")!!,
+          call.argument<String>("token")!!
+        )
+        result.success(ObjectMapper().writeValueAsString(activities))
+      } else if (call.method == "follow") {
+        follow(
+          call.argument<String>("user")!!,
+          call.argument<String>("token")!!,
+          call.argument<String>("userToFollow")!!
+        )
+        result.success(true)
       } else {
         result.notImplemented()
       }
@@ -67,6 +80,23 @@ class MainActivity : FlutterActivity() {
     val client =
       Client.builder("7mpbqgq2kbh6", "uztrsbj2azvhxvcu2272dr8g4w4gj95ey3ayqvr9ewexvd6vd7bhgwjgnseq2wr7").build()
 
-    return client.flatFeed("user", user).getActivities(Limit(10)).join()
+    return client.flatFeed("user", user).getActivities(Limit(25)).join()
+  }
+
+  private fun getTimeline(user: String, token: String): List<Activity> {
+    // todo: token is ignored since we don't have a way to use it via java lib
+    val client =
+      Client.builder("7mpbqgq2kbh6", "uztrsbj2azvhxvcu2272dr8g4w4gj95ey3ayqvr9ewexvd6vd7bhgwjgnseq2wr7").build()
+
+    return client.flatFeed("timeline", user).getActivities(Limit(25)).join()
+  }
+
+  private fun follow(user: String, token: String, userToFollow: String): Boolean {
+    // todo: token is ignored since we don't have a way to use it via java lib
+    val client =
+      Client.builder("7mpbqgq2kbh6", "uztrsbj2azvhxvcu2272dr8g4w4gj95ey3ayqvr9ewexvd6vd7bhgwjgnseq2wr7").build()
+
+    client.flatFeed("timeline", user).follow(client.flatFeed("user", userToFollow)).join()
+    return true
   }
 }

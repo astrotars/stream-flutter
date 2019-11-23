@@ -20,4 +20,13 @@ class StreamService {
     var result = await platform.invokeMethod<String>('getActivities', {'user': user, 'token': token});
     return json.decode(result);
   }
+
+  Future<dynamic> getTimeline(String user, String token) async {
+    var result = await platform.invokeMethod<String>('getTimeline', {'user': user, 'token': token});
+    return json.decode(result);
+  }
+
+  Future<bool> follow(String user, String token, String userToFollow) async {
+    return await platform.invokeMethod<bool>('follow', {'user': user, 'token': token, 'userToFollow': userToFollow});
+  }
 }

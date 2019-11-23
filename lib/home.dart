@@ -18,16 +18,16 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _activities = _getActivities();
+    _activities = _getTimeline();
   }
 
-  Future<List<dynamic>> _getActivities() async {
-    return await StreamService().getActivities(widget.user, widget.streamToken);
+  Future<List<dynamic>> _getTimeline() async {
+    return await StreamService().getTimeline(widget.user, widget.streamToken);
   }
 
   Future _refreshActivities() async {
     setState(() {
-      _activities = _getActivities();
+      _activities = _getTimeline();
     });
     return null;
   }
@@ -35,26 +35,27 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<dynamic>>(
-        future: _activities,
-        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
+      future: _activities,
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-          return Container(
-            child: Center(
-              child: RefreshIndicator(
-                onRefresh: _refreshActivities,
-                child: ListView(
-                  children: snapshot.data
-                      .map((activity) => ListTile(
-                            title: Text(activity['message']),
-                          ))
-                      .toList(),
-                ),
+        return Container(
+          child: Center(
+            child: RefreshIndicator(
+              onRefresh: _refreshActivities,
+              child: ListView(
+                children: snapshot.data
+                  .map((activity) => ListTile(
+                  title: Text(activity['message']),
+                  subtitle: Text(activity['actor']),
+                ))
+                  .toList(),
               ),
             ),
-          );
-        });
+          ),
+        );
+      });
   }
 }
