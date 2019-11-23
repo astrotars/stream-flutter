@@ -44,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _login(BuildContext context) async {
     if (users.contains(_userController.text)) {
-      String token = await StreamBackend().getToken(_userController.text);
+      String token = await StreamService().getToken(_userController.text);
       setState(() {
         _user = _userController.text;
         _streamToken = token;
@@ -66,6 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: _selectedIndex == 0 ? Home(user: _user, streamToken: _streamToken) : Search(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            StreamService().postMessage(_user, _streamToken, "yayaya");
+          },
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+        ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
