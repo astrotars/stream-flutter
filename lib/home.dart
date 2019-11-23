@@ -13,33 +13,48 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<dynamic> _activities;
+  Future<List<dynamic>> _activities;
 
   @override
   void initState() {
     super.initState();
-    _getActivities();
+    _activities = _getActivities();
   }
 
-  Future<void> _getActivities() async {
-    var activities = await StreamService().getActivities(widget.user, widget.streamToken);
+  Future<List<dynamic>> _getActivities() async {
+    return await StreamService().getActivities(widget.user, widget.streamToken);
+  }
+
+  Future _refreshActivities() async {
     setState(() {
-      _activities = activities;
+      _activities = _getActivities();
     });
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_activities != null) {
-      return ListView(
-        children: _activities
-            .map(
-              (a) => ListTile(title: Text(a['message'])),
-            )
-            .toList(),
-      );
-    } else {
-      return Center(child: CircularProgressIndicator());
-    }
+    return FutureBuilder<List<dynamic>>(
+        future: _activities,
+        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          return Container(
+            child: Center(
+              child: RefreshIndicator(
+                onRefresh: _refreshActivities,
+                child: ListView(
+                  children: snapshot.data
+                      .map((activity) => ListTile(
+                            title: Text(activity['message']),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+          );
+        });
   }
 }

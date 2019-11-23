@@ -3,6 +3,7 @@ import 'package:flutter_the_stream/search.dart';
 import 'package:flutter_the_stream/users.dart';
 
 import 'home.dart';
+import 'new_activity.dart';
 import 'stream_service.dart';
 
 void main() => runApp(MyApp());
@@ -66,12 +67,23 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: _selectedIndex == 0 ? Home(user: _user, streamToken: _streamToken) : Search(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            StreamService().postMessage(_user, _streamToken, "yayaya");
+        floatingActionButton: Builder(
+          builder: (context) {
+            return FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NewActivity(user: _user, streamToken: _streamToken)),
+                );
+
+                Scaffold.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text('Message Posted. Pull to Refresh')));
+              },
+              tooltip: 'Increment',
+              child: Icon(Icons.add),
+            );
           },
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
         ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
