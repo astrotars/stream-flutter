@@ -65,8 +65,8 @@ import GetStream
     
     private func postMessage(args: Dictionary<String, String>, result: FlutterResult) {
         let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
-        let feed = client.flatFeed(feedSlug: "user")
-        let activity = PostActivity(actor: args["user"]!, verb: "post", object: UUID().uuidString, message: args["message"]!)
+        self.feed = client.flatFeed(feedSlug: "user")
+        let activity = PostActivity(actor: User(id: args["user"]!), verb: "post", object: UUID().uuidString, message: args["message"]!)
         feed!.add(activity) {result in
             print("callback")
             print(result)
@@ -97,14 +97,14 @@ import GetStream
     }
 }
 
-final class PostActivity: EnrichedActivity<String, String, DefaultReaction> {
+final class PostActivity: EnrichedActivity<User, String, DefaultReaction> {
     private enum CodingKeys: String, CodingKey {
         case message
     }
     
     var message: String
 
-    init(actor: String, verb: Verb, object: ObjectType, message: String) {
+    init(actor: User, verb: Verb, object: ObjectType, message: String) {
         self.message = message
         super.init(actor: actor, verb: verb, object: object)
     }
