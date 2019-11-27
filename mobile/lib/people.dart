@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'stream_service.dart';
+import 'api_service.dart';
 import 'users.dart';
 
 class People extends StatefulWidget {
-  People({Key key, @required this.user, @required this.streamToken}) : super(key: key);
+  People({Key key, @required this.account}) : super(key: key);
 
-  final String user;
-  final String streamToken;
+  final Map account;
 
   @override
   _PeopleState createState() => _PeopleState();
@@ -19,7 +18,7 @@ class _PeopleState extends State<People> {
     return Builder(
       builder: (context) => ListView(
         children: users
-            .where((u) => u != widget.user)
+            .where((u) => u != widget.account['user'])
             .map((u) => ListTile(
                   title: Text(u),
                   onTap: () {
@@ -35,7 +34,7 @@ class _PeopleState extends State<People> {
                         FlatButton(
                           child: const Text('Follow'),
                           onPressed: () async {
-                            var result = await StreamService().follow(widget.user, widget.streamToken, u);
+                            var result = await ApiService().follow(widget.account, u);
                             Navigator.pop(context, "Followed");
                           },
                         )

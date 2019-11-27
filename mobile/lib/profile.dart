@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'stream_service.dart';
+import 'api_service.dart';
 
 class Profile extends StatefulWidget {
-  Profile({Key key, this.user, this.streamToken}) : super(key: key);
+  Profile({Key key, @required this.account}) : super(key: key);
 
-  final String user;
-  final String streamToken;
+  final Map account;
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -22,7 +21,7 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<List<dynamic>> _getActivities() async {
-    return await StreamService().getActivities(widget.user, widget.streamToken);
+    return await ApiService().getActivities(widget.account);
   }
 
   Future _refreshActivities() async {

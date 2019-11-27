@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'stream_service.dart';
+import 'api_service.dart';
 
 class NewActivity extends StatefulWidget {
-  NewActivity({Key key, @required this.user, @required this.streamToken}) : super(key: key);
+  NewActivity({Key key, @required this.account}) : super(key: key);
 
-  final String user;
-  final String streamToken;
+  final Map account;
 
   @override
   _NewActivityState createState() => _NewActivityState();
@@ -22,7 +21,7 @@ class _NewActivityState extends State<NewActivity> {
 
   Future _postMessage(BuildContext context) async {
     if (_messageController.text.length > 0) {
-      await StreamService().postMessage(widget.user, widget.streamToken, _messageController.text);
+      await ApiService().postMessage(widget.account, _messageController.text);
       Navigator.pop(context);
     } else {
       Scaffold.of(context).showSnackBar(

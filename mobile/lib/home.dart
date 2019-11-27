@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'stream_service.dart';
+import 'api_service.dart';
 
 class Home extends StatefulWidget {
-  Home({Key key, this.user, this.streamToken}) : super(key: key);
+  Home({Key key, @required this.account}) : super(key: key);
 
-  final String user;
-  final String streamToken;
+  final Map account;
 
   @override
   _HomeState createState() => _HomeState();
@@ -22,7 +21,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<List<dynamic>> _getTimeline() async {
-    return await StreamService().getTimeline(widget.user, widget.streamToken);
+    return await ApiService().getTimeline(widget.account);
   }
 
   Future _refreshActivities() async {

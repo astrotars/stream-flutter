@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_the_stream/users.dart';
 
+import 'api_service.dart';
 import 'home.dart';
 import 'new_activity.dart';
 import 'people.dart';
 import 'profile.dart';
-import 'stream_service.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,8 +35,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   final _userController = TextEditingController();
-  String _user;
-  String _streamToken;
+  Map<String, String> _account;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -46,10 +45,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _login(BuildContext context) async {
     if (users.contains(_userController.text)) {
-      String token = await StreamService().getToken(_userController.text);
+      var creds = await ApiService().login(_userController.text);
       setState(() {
-        _user = _userController.text;
-        _streamToken = token;
+        _account = {
+          'user': _userController.text,
+          'authToken': creds['authToken'],
+          'feedToken': creds['feedToken'],
+        };
       });
     } else {
       Scaffold.of(context).showSnackBar(
@@ -62,14 +64,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_user != null && _streamToken != null) {
+    if (_account != null) {
       var body;
       if (_selectedIndex == 0) {
-        body = Home(user: _user, streamToken: _streamToken);
+        body = Home(account: _account);
       } else if (_selectedIndex == 1) {
-        body = Profile(user: _user, streamToken: _streamToken);
+        body = Profile(account: _account);
       } else {
-        body = People(user: _user, streamToken: _streamToken);
+        body = People(account: _account);
       }
 
       return Scaffold(
@@ -84,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () async {
                       await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => NewActivity(user: _user, streamToken: _streamToken)),
+                        MaterialPageRoute(builder: (_) => NewActivity(account: _account)),
                       );
 
                       Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));

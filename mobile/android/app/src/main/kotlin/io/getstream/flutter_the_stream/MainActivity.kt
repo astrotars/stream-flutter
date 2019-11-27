@@ -23,10 +23,7 @@ class MainActivity : FlutterActivity() {
     GeneratedPluginRegistrant.registerWith(this)
 
     MethodChannel(flutterView, CHANNEL).setMethodCallHandler { call, result ->
-      if (call.method == "getToken") {
-        val token: String = getToken(call.arguments as String)
-        result.success(token)
-      } else if (call.method == "postMessage") {
+      if (call.method == "postMessage") {
         postMessage(
           call.argument<String>("user")!!,
           call.argument<String>("token")!!,
@@ -56,13 +53,6 @@ class MainActivity : FlutterActivity() {
         result.notImplemented()
       }
     }
-  }
-
-  private fun getToken(user: String): String {
-    val client =
-      Client.builder("7mpbqgq2kbh6", "uztrsbj2azvhxvcu2272dr8g4w4gj95ey3ayqvr9ewexvd6vd7bhgwjgnseq2wr7").build()
-
-    return client.frontendToken(user).toString();
   }
 
   private fun postMessage(user: String, token: String, message: String) {
