@@ -58,7 +58,7 @@ class MainActivity : FlutterActivity() {
   private fun postMessage(user: String, token: String, message: String) {
     val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
 
-    val feed = client.flatFeed("user", user)
+    val feed = client.flatFeed("user")
     feed.addActivity(
       Activity.builder().actor(user).verb("post").`object`(UUID.randomUUID().toString()).extraField(
         "message",
@@ -70,19 +70,19 @@ class MainActivity : FlutterActivity() {
   private fun getActivities(user: String, token: String): List<Activity> {
     val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
 
-    return client.flatFeed("user", user).getActivities(Limit(25)).join()
+    return client.flatFeed("user").getActivities(Limit(25)).join()
   }
 
   private fun getTimeline(user: String, token: String): List<Activity> {
     val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
 
-    return client.flatFeed("timeline", user).getActivities(Limit(25)).join()
+    return client.flatFeed("timeline").getActivities(Limit(25)).join()
   }
 
   private fun follow(user: String, token: String, userToFollow: String): Boolean {
     val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
 
-    client.flatFeed("timeline", user).follow(client.flatFeed("user", userToFollow)).join()
+    client.flatFeed("timeline").follow(client.flatFeed("user", userToFollow)).join()
     return true
   }
 }

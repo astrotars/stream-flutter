@@ -21,7 +21,7 @@ class ApiService {
   }
 
   Future<dynamic> getActivities(Map account) async {
-    var result = await platform.invokeMethod<String>('getActivities', {'user': account['user'], 'token': 'feedToken'});
+    var result = await platform.invokeMethod<String>('getActivities', {'user': account['user'], 'token': account['feedToken']});
     return json.decode(result);
   }
 
