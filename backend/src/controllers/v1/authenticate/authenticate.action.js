@@ -39,3 +39,7 @@ exports.authenticate = async (req, res) => {
 
   res.json({ authToken: token });
 };
+
+exports.users = async (req, res) => {
+  res.json({ users: Array.from(usersStorage.values()) });
+};

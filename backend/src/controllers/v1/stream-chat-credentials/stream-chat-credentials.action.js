@@ -3,7 +3,7 @@ import { StreamChat } from 'stream-chat';
 
 dotenv.config();
 
-exports.streamCredentials = async (req, res) => {
+exports.streamChatCredentials = async (req, res) => {
   try {
     const data = req.body;
     const apiKey = process.env.STREAM_API_KEY;
