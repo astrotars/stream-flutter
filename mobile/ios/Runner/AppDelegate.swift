@@ -93,7 +93,9 @@ import GetStream
     }
     
     private func follow(args: Dictionary<String, String>) {
-        
+        let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
+        self.feed = client.flatFeed(feedSlug: "timeline")
+        self.feed!.follow(toTarget: client.flatFeed(feedSlug: "user", userId: args["userToFollow"]!).feedId) { r in }
     }
 }
 
