@@ -1,0 +1,25 @@
+POST http://localhost:8080/v1/authenticate
+Accept: application/json
+Content-Type: application/json
+
+{
+  "identity": "user1"
+}
+
+###
+POST http://localhost:8080/v1/stream-token
+Authorization: Bearer IJgjW/zzBuOuuqrDe48AOum7ULR49TShM58k3Gvz54k=
+Accept: application/json
+Content-Type: application/json
+
+{}
+
+###
+GET http://localhost:8080/v1/virgil-token
+Authorization: Bearer Y4I/W6UpBuHp7rx1CVdJHmZlNic8yq/7VC5RI3FYqWg=
+Accept: application/json
+Content-Type: application/json
+
+{}
+
+###
