@@ -66,7 +66,7 @@ import GetStream
     private func postMessage(args: Dictionary<String, String>, result: FlutterResult) {
         let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
         let feed = client.flatFeed(feedSlug: "user")
-        let activity = EnrichedActivity<String, String, DefaultReaction>(actor: args["user"]!, verb: "post", object: "uuid")
+        let activity = PostActivity(actor: args["user"]!, verb: "post", object: UUID().uuidString, message: args["message"]!)
         feed!.add(activity) {result in
             print("callback")
             print(result)
@@ -76,9 +76,10 @@ import GetStream
     
     private func getActivities(args: Dictionary<String, String>, result: @escaping FlutterResult) {
         let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
-        let feed = client.flatFeed(feedSlug: "user", userId: args["user"]!)
-        feed.get(pagination: .limit(25)) { r in result(r) }
-        result("[]")
+        self.feed = client.flatFeed(feedSlug: "user")
+        self.feed!.get(typeOf: PostActivity.self, pagination: .limit(25)) { r in
+            result(String(data: try! JSONEncoder().encode(try! r.get().results), encoding: .utf8)!)
+        }
     }
     
     
@@ -86,23 +87,41 @@ import GetStream
         print(args["token"]!)
         let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
         self.feed = client.flatFeed(feedSlug: "timeline")
-        self.feed!.get(typeOf: EnrichedActivity<String, String, DefaultReaction>.self, pagination: .limit(25)) { r in
-            print("print result")
-            if case .success(let response) = r {
-                print("success")
-                print(response)
-                
-                result(String(data: try! JSONEncoder().encode(response.results), encoding: .utf8)!)
-                
-            }
-            if case .failure(let err) = r {
-                print(err.description)
-                print(err.failureReason)
-            }
+        self.feed!.get(typeOf: PostActivity.self, pagination: .limit(25)) { r in
+            result(String(data: try! JSONEncoder().encode(try! r.get().results), encoding: .utf8)!)
         }
     }
     
     private func follow(args: Dictionary<String, String>) {
         
+    }
+}
+
+final class PostActivity: EnrichedActivity<String, String, DefaultReaction> {
+    private enum CodingKeys: String, CodingKey {
+        case message
+    }
+    
+    var message: String
+
+    init(actor: String, verb: Verb, object: ObjectType, message: String) {
+        self.message = message
+        super.init(actor: actor, verb: verb, object: object)
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        message = try container.decode(String.self, forKey: .message)
+        try super.init(from: decoder)
+    }
+    
+    required init(actor: ActorType, verb: Verb, object: ObjectType, foreignId: String? = nil, time: Date? = nil, feedIds: FeedIds? = nil, originFeedId: FeedId? = nil) {
+        fatalError("init(actor:verb:object:foreignId:time:feedIds:originFeedId:) has not been implemented")
+    }
+    
+    override public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(message, forKey: .message)
+        try super.encode(to: encoder)
     }
 }
