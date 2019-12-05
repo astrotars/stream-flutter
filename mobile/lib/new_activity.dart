@@ -22,7 +22,7 @@ class _NewActivityState extends State<NewActivity> {
   Future _postMessage(BuildContext context) async {
     if (_messageController.text.length > 0) {
       await ApiService().postMessage(widget.account, _messageController.text);
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       Scaffold.of(context).showSnackBar(
         SnackBar(
@@ -40,18 +40,20 @@ class _NewActivityState extends State<NewActivity> {
       ),
       body: Builder(
         builder: (context) {
-          return Center(
-            child: Column(
-              children: [
-                Text("User"),
-                TextField(
-                  controller: _messageController,
-                ),
-                MaterialButton(
-                  onPressed: () => _postMessage(context),
-                  child: Text("Post"),
-                ),
-              ],
+          return Container(
+            padding: EdgeInsets.all(12.0),
+            child: Center(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _messageController,
+                  ),
+                  MaterialButton(
+                    onPressed: () => _postMessage(context),
+                    child: Text("Post"),
+                  ),
+                ],
+              ),
             ),
           );
         },

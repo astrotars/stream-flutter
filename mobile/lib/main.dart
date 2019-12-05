@@ -83,12 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 builder: (context) {
                   return FloatingActionButton(
                     onPressed: () async {
-                      await Navigator.push(
+                      var messagePosted = await Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => NewActivity(account: _account)),
                       );
 
-                      Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
+                      if (messagePosted != null) {
+                        Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
+                      }
                     },
                     tooltip: 'Increment',
                     child: Icon(Icons.add),
