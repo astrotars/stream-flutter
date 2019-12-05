@@ -16,6 +16,7 @@ import org.json.JSONObject
 
 class MainActivity : FlutterActivity() {
   private val CHANNEL = "io.getstream/backend"
+  private val API_KEY = "7mpbqgq2kbh6"
 
   override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -56,7 +57,7 @@ class MainActivity : FlutterActivity() {
   }
 
   private fun postMessage(user: String, token: String, message: String) {
-    val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
+    val client = CloudClient.builder(API_KEY, token, user).build()
 
     val feed = client.flatFeed("user")
     feed.addActivity(
@@ -68,19 +69,19 @@ class MainActivity : FlutterActivity() {
   }
 
   private fun getActivities(user: String, token: String): List<Activity> {
-    val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
+    val client = CloudClient.builder(API_KEY, token, user).build()
 
     return client.flatFeed("user").getActivities(Limit(25)).join()
   }
 
   private fun getTimeline(user: String, token: String): List<Activity> {
-    val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
+    val client = CloudClient.builder(API_KEY, token, user).build()
 
     return client.flatFeed("timeline").getActivities(Limit(25)).join()
   }
 
   private fun follow(user: String, token: String, userToFollow: String): Boolean {
-    val client = CloudClient.builder("7mpbqgq2kbh6", token, user).build()
+    val client = CloudClient.builder(API_KEY, token, user).build()
 
     client.flatFeed("timeline").follow(client.flatFeed("user", userToFollow)).join()
     return true

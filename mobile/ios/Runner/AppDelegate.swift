@@ -4,7 +4,10 @@ import GetStream
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-    var feed: FlatFeed?;
+    let appId: String = "64414";
+    let apiKey: String = "7mpbqgq2kbh6";
+    var feed: FlatFeed?; // this is necessary to ensure the callback fires, otherwise the reference may be GC'd
+    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -15,9 +18,6 @@ import GetStream
         
         channel.setMethodCallHandler({
             [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-            print("platform call")
-            print(call.method)
-            print(call.arguments)
             let args = call.arguments as!  Dictionary<String, String>
             if call.method == "postMessage" {
                 do {
@@ -64,7 +64,7 @@ import GetStream
     }
     
     private func postMessage(args: Dictionary<String, String>, result: FlutterResult) {
-        let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
+        let client = Client(apiKey: apiKey, appId: appId, token: args["token"]!)
         self.feed = client.flatFeed(feedSlug: "user")
         let activity = PostActivity(actor: User(id: args["user"]!), verb: "post", object: UUID().uuidString, message: args["message"]!)
         feed!.add(activity) {result in
@@ -75,7 +75,7 @@ import GetStream
     }
     
     private func getActivities(args: Dictionary<String, String>, result: @escaping FlutterResult) {
-        let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
+        let client = Client(apiKey: apiKey, appId: appId, token: args["token"]!)
         self.feed = client.flatFeed(feedSlug: "user")
         self.feed!.get(typeOf: PostActivity.self, pagination: .limit(25)) { r in
             result(String(data: try! JSONEncoder().encode(try! r.get().results), encoding: .utf8)!)
@@ -85,7 +85,7 @@ import GetStream
     
     private func getTimeline(args: Dictionary<String, String>, result: @escaping FlutterResult) {
         print(args["token"]!)
-        let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
+        let client = Client(apiKey: apiKey, appId: appId, token: args["token"]!)
         self.feed = client.flatFeed(feedSlug: "timeline")
         self.feed!.get(typeOf: PostActivity.self, pagination: .limit(25)) { r in
             result(String(data: try! JSONEncoder().encode(try! r.get().results), encoding: .utf8)!)
@@ -93,7 +93,7 @@ import GetStream
     }
     
     private func follow(args: Dictionary<String, String>) {
-        let client = Client(apiKey: "7mpbqgq2kbh6", appId: "64414", token: args["token"]!)
+        let client = Client(apiKey: apiKey, appId: appId, token: args["token"]!)
         self.feed = client.flatFeed(feedSlug: "timeline")
         self.feed!.follow(toTarget: client.flatFeed(feedSlug: "user", userId: args["userToFollow"]!).feedId) { r in }
     }
@@ -105,7 +105,7 @@ final class PostActivity: EnrichedActivity<User, String, DefaultReaction> {
     }
     
     var message: String
-
+    
     init(actor: User, verb: Verb, object: ObjectType, message: String) {
         self.message = message
         super.init(actor: actor, verb: verb, object: object)
