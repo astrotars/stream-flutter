@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_the_stream/users.dart';
 
 import 'api_service.dart';
 import 'home.dart';
@@ -44,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _login(BuildContext context) async {
-    if (users.contains(_userController.text)) {
+    if (_userController.text.length > 0) {
       var creds = await ApiService().login(_userController.text);
       setState(() {
         _account = {
@@ -122,18 +121,20 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text("Login"),
         ),
         body: Builder(builder: (BuildContext context) {
-          return Center(
-            child: Column(
-              children: [
-                Text("User"),
-                TextField(
-                  controller: _userController,
-                ),
-                MaterialButton(
-                  onPressed: () => _login(context),
-                  child: Text("Login"),
-                ),
-              ],
+          return Container(
+            padding: EdgeInsets.all(12.0),
+            child: Center(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _userController,
+                  ),
+                  MaterialButton(
+                    onPressed: () => _login(context),
+                    child: Text("Login"),
+                  ),
+                ],
+              ),
             ),
           );
         }),

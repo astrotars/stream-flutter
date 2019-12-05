@@ -7,10 +7,6 @@ const crypto = require('crypto');
 const usersStorage = new Map();
 
 const generateUserToken = () => crypto.randomBytes(32).toString('base64');
-const pseudoEncodeToken = (sender, token) => usersStorage.set(token, sender);
-const pseudoDecodeToken = (token) => usersStorage.get(token);
-const pseudoVerifyToken = (token) => usersStorage.has(token);
-
 exports.requireAuthHeader = (req, res, next) => {
   // 'Check if request is authorized with token from POST /authorize'
   if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer '))) {
@@ -21,9 +17,9 @@ exports.requireAuthHeader = (req, res, next) => {
 
   const userToken = req.headers.authorization.split('Bearer ')[1];
 
-  if (!pseudoVerifyToken(userToken)) res.status(401).send('Unauthorized');
+  if (!usersStorage.has(userToken)) res.status(401).send('Unauthorized');
 
-  req.user = { sender: pseudoDecodeToken(userToken) };
+  req.user = { sender: usersStorage.get(userToken) };
   next();
 };
 
@@ -35,7 +31,7 @@ exports.authenticate = async (req, res) => {
   }
   const token = generateUserToken();
 
-  pseudoEncodeToken(req.body.sender, token);
+  usersStorage.set(token, req.body.sender);
 
   res.json({ authToken: token });
 };
