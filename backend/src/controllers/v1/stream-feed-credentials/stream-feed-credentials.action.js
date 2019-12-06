@@ -12,7 +12,6 @@ exports.streamFeedCredentials = async (req, res) => {
 
     const client = stream.connect(apiKey, apiSecret, appId);
 
-
     await client.user(req.user.sender).getOrCreate({ name: req.user.sender });
     const token = client.createUserToken(req.user.sender);
 

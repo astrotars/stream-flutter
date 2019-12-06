@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'api_service.dart';
 
-class Home extends StatefulWidget {
-  Home({Key key, @required this.account}) : super(key: key);
+class Timeline extends StatefulWidget {
+  Timeline({Key key, @required this.account}) : super(key: key);
 
   final Map account;
 
   @override
-  _HomeState createState() => _HomeState();
+  _TimelineState createState() => _TimelineState();
 }
 
-class _HomeState extends State<Home> {
+class _TimelineState extends State<Timeline> {
   Future<List<dynamic>> _activities;
 
   @override

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'api_service.dart';
-import 'home.dart';
 import 'new_activity.dart';
 import 'people.dart';
 import 'profile.dart';
+import 'timeline.dart';
 
 void main() => runApp(MyApp());
 
@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_account != null) {
       var body;
       if (_selectedIndex == 0) {
-        body = Home(account: _account);
+        body = Timeline(account: _account);
       } else if (_selectedIndex == 1) {
         body = Profile(account: _account);
       } else {
@@ -120,26 +120,28 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text("Login"),
+          title: Text("The Stream"),
         ),
-        body: Builder(builder: (BuildContext context) {
-          return Container(
-            padding: EdgeInsets.all(12.0),
-            child: Center(
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _userController,
-                  ),
-                  MaterialButton(
-                    onPressed: () => _login(context),
-                    child: Text("Login"),
-                  ),
-                ],
+        body: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              padding: EdgeInsets.all(12.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _userController,
+                    ),
+                    RaisedButton(
+                      onPressed: () => _login(context),
+                      child: Text("Login"),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     }
   }
