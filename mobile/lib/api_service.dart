@@ -8,7 +8,7 @@ class ApiService {
   static const _baseUrl = 'https://f48f0281.ngrok.io';
 
   Future<Map> login(String user) async {
-    var authResponse = await http.post('$_baseUrl/v1/authenticate', body: {'sender': user});
+    var authResponse = await http.post('$_baseUrl/v1/users', body: {'sender': user});
     var authToken = json.decode(authResponse.body)['authToken'];
     var feedResponse = await http
         .post('$_baseUrl/v1/stream-feed-credentials', headers: {'Authorization': 'Bearer $authToken'});
