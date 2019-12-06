@@ -16,10 +16,12 @@ In order to post an update the app will perform these steps:
 
 * User types their name into Flutter application to log in.
 * Flutter registers user with our backend and receives a Stream Activity Feed [frontend token](https://getstream.io/blog/integrating-with-stream-backend-frontend-options/).
-* User types in their post. Flutter app uses the Stream token to create a Stream activity via Stream's REST API.
-* User views their posts. Flutter app gets their `user` activity via Stream REST API.
+* User types in their post. Flutter app uses the Stream token to create a Stream activity by using Flutter's [platform channels ](https://flutter.dev/docs/development/platform-integration/platform-channels) to connect to [Stream's REST API](https://getstream.io/docs_rest/) via [Java](https://github.com/GetStream/stream-java) or [Swift](https://github.com/getstream/stream-swift).
+* User views their posts. Flutter app gets their `user` activity via platform channel.
 
 If another user wants to follow a user, the app goes through this process:
 * Log in via backend (see above)
 * User navigates to user list and selects a user to follow. Flutter app communicates with Stream API to create a follower relationship on their timeline.
-* User views their timeline. Flutter app uses Stream API to retrieve their timeline, which includes posts from their followers
+* User views their timeline. Flutter app uses Stream API to retrieve their timeline, which is all the posts from their followers.
+
+
