@@ -10,16 +10,15 @@ class ApiService {
   Future<Map> login(String user) async {
     var authResponse = await http.post('$_baseUrl/v1/users', body: {'sender': user});
     var authToken = json.decode(authResponse.body)['authToken'];
-    var feedResponse = await http
-        .post('$_baseUrl/v1/stream-feed-credentials', headers: {'Authorization': 'Bearer $authToken'});
+    var feedResponse =
+        await http.post('$_baseUrl/v1/stream-feed-credentials', headers: {'Authorization': 'Bearer $authToken'});
     var feedToken = json.decode(feedResponse.body)['token'];
 
     return {'authToken': authToken, 'feedToken': feedToken};
   }
 
   Future<List> users(Map account) async {
-    var response = await http
-        .get('$_baseUrl/v1/users', headers: {'Authorization': 'Bearer ${account['authToken']}'});
+    var response = await http.get('$_baseUrl/v1/users', headers: {'Authorization': 'Bearer ${account['authToken']}'});
     return json.decode(response.body)['users'];
   }
 

@@ -1,8 +1,8 @@
 # TheStream: Building a Social Network w/ Stream and Flutter, Part 1
 
-In this series, we'll be creating a simple video live chat social network, called TheStream, that has some of the features you'd expect: posting status updates to followers, direct messaging, and video live chat. 
+In this post, we'll be creating a simple social network, called TheStream, that allows a user to post messages to followers. 
 
-In part 1, we'll be creating the ability to post an update to your followers. Stream's Activity Feed API makes it straightforward to build this sort of complex interaction. All source code for this application is available on [GitHub](https://github.com/psylinse/flutter_the_stream). This code is fully functional on both iOS and Android. 
+We'll be creating the ability to post an update to your followers. Stream's Activity Feed API makes it straightforward to build this sort of complex interaction. All source code for this application is available on [GitHub](https://github.com/psylinse/flutter_the_stream). This code is fully functional on both iOS and Android. 
 
 For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented. To keep things focused, we'll be showing the more important code snippets to get each pieces idea across. Often there is context around those code snippets which are important, such as layout or navigation. Please refer to the full source if you're confused on how something works, or how we got to a screen. Each snippet will be accompanied with a comment explaining which file and line to look at.
 
@@ -32,7 +32,13 @@ The code is split between the Flutter mobile application contained in the `mobil
 
 Basic knowledge of Node.js (JavaScript) and Flutter (Dart) is required to follow this tutorial. This code is intended to run locally on your machine. 
 
-You'll need an account with [Stream](https://getstream.io/accounts/signup/) in order to follow along. Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple Flutter application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive)
+If you'd like to follow along, you'll need an account with [Stream](https://getstream.io/accounts/signup/) in order to follow along. Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple Flutter application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive)
+
+Once you have an account with Stream, you need to set up a development app:
+
+![](images/create-app.png)
+
+You'll need to add the credentials from the Stream app to the source code in order for it to work. See both the `mobile` and `backend` readmes.
 
 Let's get to building!
 
@@ -248,8 +254,83 @@ private fun postMessage(user: String, token: String, message: String) {
 
 Here we use [Stream Java's](https://github.com/GetStream/stream-java) `CloudClient` from the `Cloud package` (https://getstream.github.io/stream-java/io/getstream/cloud/package-summary.html). This client takes our frontend token and allows the mobile app to communicate directly with Stream. We are authenticated only to post activities for the actor `SU:john`. Since we aren't storing a corresponding object in a database, we generate an id to keep each post unique. We also pass along a message payload which is what our followers will see.
 
-Once all of these functions return we pop the Navigator to return to our profile screen which will display our posted messages. We'll build this next.
+You may be wondering what the `client.flatFeed("user")` is referring to. In order for this to work, we need to set up a flat feed called "user" in Stream. This is where every user's feed, which only contains their messages will be stored.
+
+Inside of your development app create a flat feed called "user":
+
+![](images/create-user-feed.png)
+
+That's all we need for Stream to store our messages. Once all of these functions return we pop the Navigator to return to the user's profile screen which will display our posted messages. We'll build this next.
 
 # Step 3: Displaying Messages on our Profile
 
+Let's first build a Flutter widget that will contain the user's messages. Here is what the screen will look like:
 
+![](images/profile.png)
+
+And here is the code:
+
+```dart
+// mobile/lib/profile.dart:34
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<List<dynamic>>(
+    future: _activities,
+    builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+      if (!snapshot.hasData) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      return Container(
+        child: Center(
+          child: RefreshIndicator(
+            onRefresh: _refreshActivities,
+            child: ListView(
+              children: snapshot.data
+                  .map((activity) => ListTile(
+                        title: Text(activity['message']),
+                      ))
+                  .toList(),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+```
+
+We're using a `FutureBuilder` to asynchronously load our activities. We won't go into this pattern here so please refer to the [docs](https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html) or [The Boring Flutter Development Show](https://www.youtube.com/watch?v=rfagvy5xCW0&list=PLOU2XLYxmsIK0r_D-zWcmJ1plIcDNnRkK&index=4) to understand how this works. We also use a simple [`RefreshIndicator`](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html) to implement pull to refresh. Putting these two built in widget's together allows us to show a user's messages and refresh them when they post a new message.
+
+The Stream specific code happens with our `_activities` variable. In order to get a user's messages (which are activities in Stream lingo) we once again call to our `ApiService`:
+
+```dart
+// mobile/lib/profile.dart:23
+Future<List<dynamic>> _getActivities() async {
+  return await ApiService().getActivities(widget.account);
+}
+```
+
+Once again, our `ApiService` calls into native code to perform the work:
+
+```dart
+// mobile/lib/api_service.dart:30
+Future<dynamic> getActivities(Map account) async {
+  var result =
+      await platform.invokeMethod<String>('getActivities', {'user': account['user'], 'token': account['feedToken']});
+  return json.decode(result);
+}
+```
+
+In Kotlin, we use the `CloudClient` to ask for the user's flat feed and get the last 25 messages (activities):
+
+```kotlin
+// mobile/android/app/src/main/kotlin/io/getstream/flutter_the_stream/MainActivity.kt:74
+private fun getActivities(user: String, token: String): List<Activity> {
+  val client = CloudClient.builder(API_KEY, token, user).build()
+
+  return client.flatFeed("user").getActivities(Limit(25)).join()
+}
+```
+
+Next we'll see how to follow multiple user's via our timeline.
