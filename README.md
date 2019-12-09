@@ -1,4 +1,4 @@
-# TheStream: Building a Social Network w/ Stream and Flutter, Part 1
+# TheStream: Building a Social Network w/ Stream Activity Feeds and Flutter
 
 In this post, we'll be creating a simple social network, called TheStream, that allows a user to post messages to followers. 
 
