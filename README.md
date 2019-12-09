@@ -43,7 +43,7 @@ You'll need to add the credentials from the Stream app to the source code in ord
 Let's get to building!
 
 ## User posts a status update
-We'll start off by building our application to allow a user to post messages. 
+We'll start off by allowing a user to post messages. 
 
 ### Step 1: Login
 In order to communicate with the Stream API, we need a secure frontend token that allows our mobile application to authenticate with Stream directly. This avoids having to proxy through the `backend`. To do this, we'll need a backend endpoint that uses our Stream account secrets to generate this token. Once we have this token, we don't need the backend to do anything else, since the mobile app has access to the full Stream API. 
@@ -340,7 +340,7 @@ Next we'll see how to follow multiple user's via a timeline feed.
 ## User Timeline
 Now that user's can post messages, we'd like to follow a few and see an combined feed of all the messages for user's we follow.
 
-### Step 1 Follow a User
+### Step 1: Follow a User
 The first thing we need to do is view a list of user's and pick a few to follow. We'll start by creating a view that shows all the users and let's a user follow a few. Here is the screen that shows all the users:
 
 ![](images/users.png)
@@ -426,14 +426,14 @@ private fun follow(user: String, token: String, userToFollow: String): Boolean {
 }
 ```
 
-Here' we're adding a [follow relationship](https://getstream.io/docs/#following) to another user's `user` feed to this user's `timeline` feed. All this means is anytime a user posts to their `user` feed (implemented in the first part) we'll see it on our `timeline` feed. The cool part is, we can add any number of user's feeds to our `timeline` feed and Stream will return a well ordered list of activities.
+Here we're adding a [follow relationship](https://getstream.io/docs/#following) to another user's `user` feed to this user's `timeline` feed. All this means is anytime a user posts to their `user` feed (implemented in the first part) we'll see it on our `timeline` feed. The cool part is, we can add any number of user's feeds to our `timeline` feed and Stream will return a well ordered list of activities.
 
 Since we have a new feed type, we need to set this up in Stream. Just like the `user` feed, navigate to the Stream app you set up and create a flat feed group called timeline:
 
 ![](images/create-timeline-feed.png)
 
 
-### Step 2 View Timeline
+### Step 2: View Timeline
 
 Now that we have a way to follow users we can view our timeline. When we're done, assuming we've followed "bob" and "sara" we'll see a screen that looks like this:
 
@@ -497,4 +497,4 @@ private fun getTimeline(user: String, token: String): List<Activity> {
 And that's it! We now have a fully functioning mini social network. 
 
 ## Final Thoughts
-Flutter and Stream make it straightforward to build a cross-platform mobile application leveraging activity feeds. Both come with a ton of functionality out of the box. If you're looking for an alternative to React Native, Flutter is a great choice. Native code calling is simple with platform channels, and it allows us to use all the great libraries Stream has provided us.  
+Flutter and Stream make it straightforward to build a cross-platform mobile application leveraging activity feeds. Both come with a ton of functionality out of the box. If you're looking for an alternative to React Native, Flutter is a great choice. Calling native code is simple with platform channels, which it allows us to use all the great libraries Stream has provided us.  
