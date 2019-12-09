@@ -2,9 +2,9 @@
 
 In this post, we'll be creating a simple social network, called TheStream, that allows a user to post messages to followers. 
 
-We'll be creating the ability to post an update to your followers. Stream's Activity Feed API makes it straightforward to build this sort of complex interaction. All source code for this application is available on [GitHub](https://github.com/psylinse/flutter_the_stream). This code is fully functional on both iOS and Android. 
+The app will allow a user to post a message to their followers. Stream's [Activity Feed API](https://getstream.io/activity-feeds/) combined with Google's [Flutter](https://flutter.dev/) makes it straightforward to build this sort of complex interaction. All source code for this application is available on [GitHub](https://github.com/psylinse/flutter_the_stream). This application is fully functional on both iOS and Android. 
 
-For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented. To keep things focused, we'll be showing the more important code snippets to get each pieces idea across. Often there is context around those code snippets which are important, such as layout or navigation. Please refer to the full source if you're confused on how something works, or how we got to a screen. Each snippet will be accompanied with a comment explaining which file and line to look at.
+For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented. To keep things focused, we'll be showing the more important code snippets to get each pieces idea across. Often there is context around those code snippets which are important, such as layout or navigation. Please refer to the full source if you're confused on how something works, or how we got to a screen. Each snippet will be accompanied with a comment explaining which file and line it came from.
 
 ## Building TheStream: Activity Feeds
 
@@ -16,23 +16,23 @@ For the frontend, we'll build it with Flutter wrapping Stream's [Java](https://g
 
 In order to post an update the app will perform these steps:
 
-* User types their name into Flutter application to log in.
-* Flutter registers user with our backend and receives a Stream Activity Feed [frontend token](https://getstream.io/blog/integrating-with-stream-backend-frontend-options/).
-* User types in their post. Flutter app uses the Stream token to create a Stream activity by using Flutter's [platform channels ](https://flutter.dev/docs/development/platform-integration/platform-channels) to connect to [Stream's REST API](https://getstream.io/docs_rest/) via [Java](https://github.com/GetStream/stream-java) or [Swift](https://github.com/getstream/stream-swift).
-* User views their posts. Flutter app gets their `user` activity via platform channel.
+* User types their name into our mobile application to log in.
+* The mobile app registers user with our backend and receives a Stream Activity Feed [frontend token](https://getstream.io/blog/integrating-with-stream-backend-frontend-options/).
+* User types in their message and hits "Post". Flutter app uses the Stream token to create a Stream activity by using Flutter's [platform channels ](https://flutter.dev/docs/development/platform-integration/platform-channels) to connect to [Stream's REST API](https://getstream.io/docs_rest/) via [Java](https://github.com/GetStream/stream-java) or [Swift](https://github.com/getstream/stream-swift).
+* User views their posts. The mobile app gets their `user` feed.
 
 If another user wants to follow a user and view their messages, the app goes through this process:
-* Log in via backend (see above)
-* User navigates to user list and selects a user to follow. Flutter app communicates with Stream API to create a follower relationship on their timeline.
-* User views their timeline. Flutter app uses Stream API to retrieve their timeline, which is all the posts from their followers.
+* Log in (see above).
+* User navigates to user list and selects a user to follow. The mobile app communicates with Stream API directly to create a [follower relationship](https://getstream.io/get_started/#follow) on their `timeline` feed.
+* User views their timeline. The mobile app uses Stream API to retrieve their `timeline` feed, which is composed of all the messages from who they follow.
 
-The code is split between the Flutter mobile application contained in the `mobile` directory and the Express backend is in the `backend` directory. See the README.md in each folder to see installing and running instructions. If you'd like to follow along with running code, make sure you get both the backend and mobile app running before continuing.
+The code is split between the Flutter mobile application contained in the `mobile` directory and the Express backend is in the `backend` directory. See the `README.md` in each folder to see installing and running instructions. If you'd like to follow along with running code, make sure you get both the backend and mobile app running before continuing.
 
 ## Prerequisites
 
-Basic knowledge of Node.js (JavaScript) and Flutter (Dart) is required to follow this tutorial. This code is intended to run locally on your machine. 
+Basic knowledge of [Node.js](https://nodejs.org/en/) (JavaScript) and [Flutter](https://flutter.dev/) ([Dart](https://dart.dev/)) is required to follow this tutorial. This code is intended to run locally on your machine. 
 
-If you'd like to follow along, you'll need an account with [Stream](https://getstream.io/accounts/signup/) in order to follow along. Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple Flutter application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive)
+If you'd like to follow along, you'll need an account with [Stream](https://getstream.io/accounts/signup/). Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive)
 
 Once you have an account with Stream, you need to set up a development app:
 
@@ -46,20 +46,20 @@ Let's get to building!
 We'll start off by building our application to allow a user to post messages. 
 
 ### Step 1: Login
-In order to communicate with Stream, we need a secure frontend token that allows our mobile application to authenticate with Stream. To do this, we'll need a backend endpoint that stores our Stream secrets and generates this token. Once we have this token, we don't need the backend to do anything else, since the mobile app has access to the full Stream API. 
+In order to communicate with the Stream API, we need a secure frontend token that allows our mobile application to authenticate with Stream directly. This avoids having to proxy through the `backend`. To do this, we'll need a backend endpoint that uses our Stream account secrets to generate this token. Once we have this token, we don't need the backend to do anything else, since the mobile app has access to the full Stream API. 
 
-We'll be building the login screen which looks like:
+First, we'll be building the login screen which looks like:
 
 ![](images/login.png)
 
-To start let's layout our form in Flutter. In our `main.dart` file, we'll create a simple check for an account, and if we don't have one, show the user a login form:
+To start let's layout our form in Flutter. In our `main.dart` file, we'll create a simple check to see if we're logged in, and if we don't have one, show the user a login form:
 
 ```dart
 // mobile/lib/main.dart:65
 @override
 Widget build(BuildContext context) {
   if (_account != null) {
-    // ... boot app once we have logged in
+    // ... show full application once we're logged in
   } else {
     return Scaffold(
       appBar: AppBar(
@@ -92,7 +92,7 @@ Widget build(BuildContext context) {
 
 The `_account` variable is as simple `Map<String, String>` object which will contain the the backend `authToken` and a Stream `feedToken`. The `authToken` is used to make further requests the the backend, which we'll use later to retrieve a list of users. The `feedToken` is the Stream frontend token which allows access to the Stream API. 
 
-In order to set the `_account` variable, we'll take the variable typed in by the user once they've pressed "Login". Here's our `_login(..)` function:
+In order to set the `_account` variable, we'll take the string typed in by the user once they've pressed "Login" and pass it to the `ApiService` to perform our authentication. Here's our `_login(..)` function:
 
 ```dart
 // mobile/lib/main.dart:45
@@ -116,7 +116,7 @@ Future _login(BuildContext context) async {
 }
 ```
 
-We use the user's typed in name to get our credentials from the backend and store it in our `_account` variable. To do this, let's look at our implementation of `ApiService#login`:
+We use the user's typed in name to get our credentials from the backend and store it in our `_account` variable. This is two calls, one to get our `backend` authentication token and the other to get our Stream API token. To do this, let's look at our implementation of `ApiService#login`:
 
 ```dart
 // mobile/lib/api_service.dart:10
@@ -133,9 +133,10 @@ Future<Map> login(String user) async {
 
 Two things happen here. First we register a user with the backend and get an `authToken`. Using this `authToken` we ask the backend to create our Stream Activity Feed frontend token. 
 
-The user registration endpoint simply stores the user in memory and generates a simple token for auth. This is not a real implementation and should be replaced by however authentication and user management works for your application. Because of this, we won't go into detail here (please refer to the source code if you're interested). 
+The user registration endpoint in the `backend` simply stores the user in memory and generates a simple token for auth. This is not a real implementation and should be replaced by however authentication and user management works for your application. Because of this, we won't go into detail here (please refer to the source code if you're interested). 
 
-For our Stream token, let's look at what the backend is doing to generate that:
+To generate our Stream token, let's look at what the backend is doing to generate that:
+
 ```javascript
 // backend/src/controllers/v1/stream-feed-credentials/stream-feed-credentials.action.js:6
 exports.streamFeedCredentials = async (req, res) => {
@@ -158,7 +159,7 @@ exports.streamFeedCredentials = async (req, res) => {
 };
 ```
 
-This code uses our secret account credentials to create a Stream user and register the user's name. the `getOrCreate` call creates the user with a name. Once we've created the user, we return the necessary credentials to the mobile app.
+This code uses our secret account credentials to create a Stream user and register the user's name. the `getOrCreate` call creates the user with a name (or simply retrieves that user if we already registered them). Once we've created the user, we return the necessary credentials to the mobile app.
 
 Once we're logged in, we're ready to post our first message!
 
@@ -166,7 +167,7 @@ Once we're logged in, we're ready to post our first message!
 
 Now we'll build the form to post a status message to our Stream activity feed. We won't dive into navigation and layout in this tutorial. Please refer to the source if you're curious about how we get to this screen. We'll need to build a form which takes what the user wants to say to their followers and submit that to Stream.
 
-First let's build the form:
+First, the form:
 
 ```dart
 // mobile/lib/new_activity.dart:35
@@ -206,7 +207,7 @@ Which will produce a flutter view that looks like this:
 
 This is a straightforward Flutter widget, which uses a `TextEditingController` to track a user's input and uses a `MaterialButton` to trigger the post.
 
-Now let's look at the implementation of `_postMessage` which is how we post the message to Stream:
+Now let's look at the implementation of `_postMessage` which is how we create the [activity](https://getstream.io/docs/#adding-activities), with our message, in Stream:
 
 ```dart
 // mobile/lib/new_activity.dart:22
@@ -233,7 +234,7 @@ Future<bool> postMessage(Map account, String message) async {
 }
 ```
 
-Since we're going to leverage the Streams' Java library (and Swift on iOS), we make a call to the native implementation via Flutter's built in [Platform Channels](https://flutter.dev/docs/development/platform-integration/platform-channels). We won't go into detail on how this call happens, so either refer to the source code, or read up on Flutter's docs how to do this. Here is the Kotlin implementation (the iOS implementation is available in the source):
+Since we're going to leverage the Streams' [Java](https://github.com/getstream/stream-java) library (and [Swift](https://github.com/getstream/stream-java) on iOS), we make a call to the native implementation via Flutter's built in [Platform Channels](https://flutter.dev/docs/development/platform-integration/platform-channels). We won't go into detail on how this call happens, so either refer to the source code, or read up on Flutter's docs how to do this. Here is the Kotlin implementation (the iOS implementation is available in the source):
 
 ```kotlin
 // mobile/android/app/src/main/kotlin/io/getstream/flutter_the_stream/MainActivity.kt:59
@@ -253,11 +254,11 @@ private fun postMessage(user: String, token: String, message: String) {
 }
 ```
 
-Here we use [Stream Java's](https://github.com/GetStream/stream-java) `CloudClient` from the `Cloud package` (https://getstream.github.io/stream-java/io/getstream/cloud/package-summary.html). This client takes our frontend token and allows the mobile app to communicate directly with Stream. We are authenticated only to post activities for the actor `SU:john`. Since we aren't storing a corresponding object in a database, we generate an id to keep each post unique. We also pass along a message payload which is what our followers will see.
+Here we use [Stream Java's](https://github.com/GetStream/stream-java) `CloudClient` from the [Cloud package](https://getstream.github.io/stream-java/io/getstream/cloud/package-summary.html). This set of classes take our frontend token which allows the mobile app to communicate directly with Stream. We are authenticated only to post activities for the actor `SU:john`. Since we aren't storing a corresponding object in a database, we generate an id to keep each post unique. We also pass along a message payload which is what our followers will see.
 
 You may be wondering what the `client.flatFeed("user")` is referring to. In order for this to work, we need to set up a flat feed called "user" in Stream. This is where every user's feed, which only contains their messages will be stored.
 
-Inside of your development app create a flat feed called "user":
+Inside of your Stream development app create a flat feed called "user":
 
 ![](images/create-user-feed.png)
 
@@ -303,7 +304,7 @@ Widget build(BuildContext context) {
 
 We're using a `FutureBuilder` to asynchronously load our activities. We won't go into this pattern here so please refer to the [docs](https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html) or [The Boring Flutter Development Show](https://www.youtube.com/watch?v=rfagvy5xCW0&list=PLOU2XLYxmsIK0r_D-zWcmJ1plIcDNnRkK&index=4) to understand how this works. We also use a simple [`RefreshIndicator`](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html) to implement pull to refresh. Putting these two built in widget's together allows us to show a user's messages and refresh them when they post a new message.
 
-The Stream specific code happens with our `_activities` variable. In order to get a user's messages (which are activities in Stream lingo) we once again call to our `ApiService`:
+The Stream specific code happens with our `_activities` variable. In order to get a user's activities (which contain our messages) we once again call to our `ApiService`:
 
 ```dart
 // mobile/lib/profile.dart:23
@@ -312,7 +313,7 @@ Future<List<dynamic>> _getActivities() async {
 }
 ```
 
-Once again, our `ApiService` calls into native code to perform the work:
+Our `ApiService#getActivities` calls into native code to perform the work:
 
 ```dart
 // mobile/lib/api_service.dart:30
@@ -425,7 +426,7 @@ private fun follow(user: String, token: String, userToFollow: String): Boolean {
 }
 ```
 
-Here' we're adding a [follow relationship](https://getstream.io/docs/#following) to another user's `user` feed to this user's `timeline` feed. All this means is anytime a user posts to their `user` feed (implemented in the first part) we'll see it on our `timeline` feed. The cool part is, we can add any number of user's feeds to our `timeline` feed.
+Here' we're adding a [follow relationship](https://getstream.io/docs/#following) to another user's `user` feed to this user's `timeline` feed. All this means is anytime a user posts to their `user` feed (implemented in the first part) we'll see it on our `timeline` feed. The cool part is, we can add any number of user's feeds to our `timeline` feed and Stream will return a well ordered list of activities.
 
 Since we have a new feed type, we need to set this up in Stream. Just like the `user` feed, navigate to the Stream app you set up and create a flat feed group called timeline:
 
