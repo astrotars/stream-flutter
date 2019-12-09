@@ -1,6 +1,4 @@
-# flutter_the_stream
-
-Flutter
+# TheStream Flutter Application
 
 ## Getting Started
 
