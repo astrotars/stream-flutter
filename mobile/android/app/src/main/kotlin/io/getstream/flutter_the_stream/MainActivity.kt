@@ -61,10 +61,13 @@ class MainActivity : FlutterActivity() {
 
     val feed = client.flatFeed("user")
     feed.addActivity(
-      Activity.builder().actor("SU:${user}").verb("post").`object`(UUID.randomUUID().toString()).extraField(
-        "message",
-        message
-      ).build()
+      Activity
+        .builder()
+        .actor("SU:${user}")
+        .verb("post")
+        .`object`(UUID.randomUUID().toString())
+        .extraField("message", message)
+        .build()
     ).join()
   }
 

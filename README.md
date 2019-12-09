@@ -4,7 +4,7 @@ In this series, we'll be creating a simple video live chat social network, calle
 
 In part 1, we'll be creating the ability to post an update to your followers. Stream's Activity Feed API makes it straightforward to build this sort of complex interaction. All source code for this application is available on [GitHub](https://github.com/psylinse/flutter_the_stream). This code is fully functional on both iOS and Android. 
 
-For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented. To keep things focused, we'll be showing the more important code snippets to get each pieces idea across. Often there is context around those code snippets which are important. Please refer to the full source if you're confused on how something works. Each snippet will be accompanied with a comment explaining which file and line to look at.
+For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented. To keep things focused, we'll be showing the more important code snippets to get each pieces idea across. Often there is context around those code snippets which are important, such as layout or navigation. Please refer to the full source if you're confused on how something works, or how we got to a screen. Each snippet will be accompanied with a comment explaining which file and line to look at.
 
 ## Building TheStream: Activity Feeds
 
@@ -153,6 +153,103 @@ exports.streamFeedCredentials = async (req, res) => {
 
 This code uses our secret account credentials to create a Stream user and register the user's name. the `getOrCreate` call creates the user with a name. Once we've created the user, we return the necessary credentials to the mobile app.
 
-Once we're logged in, we're ready to submit our first post!
+Once we're logged in, we're ready to post our first message!
 
-### Step 2: 
+### Step 2: Posting a Message
+
+Now we'll build the form to post a status message to our Stream activity feed. We won't dive into navigation and layout in this tutorial. Please refer to the source if you're curious about how we get to this screen. We'll need to build a form which takes what the user wants to say to their followers and submit that to Stream.
+
+First let's build the form:
+
+```dart
+// mobile/lib/new_activity.dart:35
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text("Post Message"),
+    ),
+    body: Builder(
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(12.0),
+          child: Center(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _messageController,
+                ),
+                MaterialButton(
+                  onPressed: () => _postMessage(context),
+                  child: Text("Post"),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+```
+
+Which will produce a flutter view that looks like this:
+
+![](images/post-form.png)
+
+This is a straightforward Flutter widget, which uses a `TextEditingController` to track a user's input and uses a `MaterialButton` to trigger the post.
+
+Now let's look at the implementation of `_postMessage` which is how we post the message to Stream:
+
+```dart
+// mobile/lib/new_activity.dart:22
+Future _postMessage(BuildContext context) async {
+  if (_messageController.text.length > 0) {
+    await ApiService().postMessage(widget.account, _messageController.text);
+    Navigator.pop(context, true);
+  } else {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Please type a message'),
+      ),
+    );
+  }
+}
+```
+
+We simply take the the typed in text and pass it to our `ApiService` and pop the navigation stack to return to the previous screen. Here is the implementation of `ApiService#postMessage`:
+
+```dart
+Future<bool> postMessage(Map account, String message) async {
+  return await platform.invokeMethod<bool>(
+      'postMessage', {'user': account['user'], 'token': account['feedToken'], 'message': message});
+}
+```
+
+Since we're going to leverage the Streams' Java library (and Swift on iOS), we make a call to the native implementation via Flutter's built in [Platform Channels](https://flutter.dev/docs/development/platform-integration/platform-channels). We won't go into detail on how this call happens, so either refer to the source code, or read up on Flutter's docs how to do this. Here is the Kotlin implementation (the iOS implementation is available in the source):
+
+```kotlin
+// mobile/android/app/src/main/kotlin/io/getstream/flutter_the_stream/MainActivity.kt:59
+private fun postMessage(user: String, token: String, message: String) {
+  val client = CloudClient.builder(API_KEY, token, user).build()
+
+  val feed = client.flatFeed("user")
+  feed.addActivity(
+    Activity
+      .builder()
+      .actor("SU:${user}")
+      .verb("post")
+      .`object`(UUID.randomUUID().toString())
+      .extraField("message", message)
+      .build()
+  ).join()
+}
+```
+
+Here we use [Stream Java's](https://github.com/GetStream/stream-java) `CloudClient` from the `Cloud package` (https://getstream.github.io/stream-java/io/getstream/cloud/package-summary.html). This client takes our frontend token and allows the mobile app to communicate directly with Stream. We are authenticated only to post activities for the actor `SU:john`. Since we aren't storing a corresponding object in a database, we generate an id to keep each post unique. We also pass along a message payload which is what our followers will see.
+
+Once all of these functions return we pop the Navigator to return to our profile screen which will display our posted messages. We'll build this next.
+
+# Step 3: Displaying Messages on our Profile
+
+
