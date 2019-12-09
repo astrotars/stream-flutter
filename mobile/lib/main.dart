@@ -13,11 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'The Stream',
+      title: 'TheStream',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'The Stream'),
+      home: MyHomePage(title: 'TheStream'),
     );
   }
 }
@@ -101,8 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              title: Text('Home'),
+              icon: Icon(Icons.list),
+              title: Text('Timeline'),
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text("The Stream"),
+          title: Text("TheStream"),
         ),
         body: Builder(
           builder: (BuildContext context) {

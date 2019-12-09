@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const platform = const MethodChannel('io.getstream/backend');
-  static const _baseUrl = 'https://f48f0281.ngrok.io';
+  static const _baseUrl = 'http://10.0.2.2:8080'; // android only, for both platforms use something like: https://ngrok.com/
 
   Future<Map> login(String user) async {
     var authResponse = await http.post('$_baseUrl/v1/users', body: {'sender': user});

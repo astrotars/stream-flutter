@@ -41,7 +41,7 @@ class _PeopleState extends State<People> {
                           FlatButton(
                             child: const Text('Follow'),
                             onPressed: () async {
-                              var result = await ApiService().follow(widget.account, u);
+                              await ApiService().follow(widget.account, u);
                               Navigator.pop(context, "Followed");
                             },
                           )

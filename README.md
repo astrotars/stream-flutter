@@ -21,7 +21,7 @@ In order to post an update the app will perform these steps:
 * User types in their post. Flutter app uses the Stream token to create a Stream activity by using Flutter's [platform channels ](https://flutter.dev/docs/development/platform-integration/platform-channels) to connect to [Stream's REST API](https://getstream.io/docs_rest/) via [Java](https://github.com/GetStream/stream-java) or [Swift](https://github.com/getstream/stream-swift).
 * User views their posts. Flutter app gets their `user` activity via platform channel.
 
-If another user wants to follow a user, the app goes through this process:
+If another user wants to follow a user and view their messages, the app goes through this process:
 * Log in via backend (see above)
 * User navigates to user list and selects a user to follow. Flutter app communicates with Stream API to create a follower relationship on their timeline.
 * User views their timeline. Flutter app uses Stream API to retrieve their timeline, which is all the posts from their followers.
@@ -38,11 +38,12 @@ Once you have an account with Stream, you need to set up a development app:
 
 ![](images/create-app.png)
 
-You'll need to add the credentials from the Stream app to the source code in order for it to work. See both the `mobile` and `backend` readmes.
+You'll need to add the credentials from the Stream app to the source code in order for it to work. See both the `mobile` and `backend` readmes. 
 
 Let's get to building!
 
 ## User posts a status update
+We'll start off by building our application to allow a user to post messages. 
 
 ### Step 1: Login
 In order to communicate with Stream, we need a secure frontend token that allows our mobile application to authenticate with Stream. To do this, we'll need a backend endpoint that stores our Stream secrets and generates this token. Once we have this token, we don't need the backend to do anything else, since the mobile app has access to the full Stream API. 
@@ -333,4 +334,166 @@ private fun getActivities(user: String, token: String): List<Activity> {
 }
 ```
 
-Next we'll see how to follow multiple user's via our timeline.
+Next we'll see how to follow multiple user's via a timeline feed.
+
+## User Timeline
+Now that user's can post messages, we'd like to follow a few and see an combined feed of all the messages for user's we follow.
+
+### Step 1 Follow a User
+The first thing we need to do is view a list of user's and pick a few to follow. We'll start by creating a view that shows all the users and let's a user follow a few. Here is the screen that shows all the users:
+
+![](images/users.png)
+
+And here's the code that backs it:
+
+```dart
+// mobile/lib/people.dart:23
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<List>(
+    future: _users,
+    builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+      if (!snapshot.hasData) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      return ListView(
+        children: snapshot.data
+            .where((u) => u != widget.account['user'])
+            .map((u) => ListTile(
+                  title: Text(u),
+                  onTap: () {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(content: Text("Click to follow"), actions: [
+                        FlatButton(
+                          child: const Text('Follow'),
+                          onPressed: () async {
+                            await ApiService().follow(widget.account, u);
+                            Navigator.pop(context, "Followed");
+                          },
+                        )
+                      ]),
+                    ).then<void>((String message) {
+                      // The value passed to Navigator.pop() or null.
+                      if (message != null) {
+                        Scaffold.of(context)
+                          ..removeCurrentSnackBar()
+                          ..showSnackBar(SnackBar(
+                            content: Text(message),
+                          ));
+                      }
+                    });
+                  },
+                ))
+            .toList(),
+      );
+    },
+  );
+}
+```
+
+This widget follows the same pattern as the profile by using a `FutureBuilder` backed by `users`. The `users` variable is backed simply a call to our `backend` service. Since the backend is not a real implementation, we'll skip the details of how the `backend` stores and retrieves users here. Please refer to the source. In Flutter we simply make a http call to retrieve the list, as seen in `ApiService#users`:
+
+```dart
+// mobile/lib/api_service.dart:20
+Future<List> users(Map account) async {
+  var response = await http.get('$_baseUrl/v1/users', headers: {'Authorization': 'Bearer ${account['authToken']}'});
+  return json.decode(response.body)['users'];
+}
+```
+
+The interesting parts are when we click a user. We show a Flutter dialog via `showDialog` which contains a single button that allows us to follow. When we press that button we trigger `ApiService#follow`. We can see how, once again, we're leveraging native libraries to do the work of following a user. Here is the Flutter side:
+
+```dart
+// mobile/lib/api_service.dart:42
+Future<bool> follow(Map account, String userToFollow) async {
+  return await platform.invokeMethod<bool>(
+      'follow', {'user': account['user'], 'token': account['feedToken'], 'userToFollow': userToFollow});
+}
+```
+
+And here is the native Kotlin side using the `CloudClient`:
+
+```kotlin
+// mobile/android/app/src/main/kotlin/io/getstream/flutter_the_stream/MainActivity.kt:86
+private fun follow(user: String, token: String, userToFollow: String): Boolean {
+  val client = CloudClient.builder(API_KEY, token, user).build()
+
+  client.flatFeed("timeline").follow(client.flatFeed("user", userToFollow)).join()
+  return true
+}
+```
+
+Here' we're adding a [follow relationship](https://getstream.io/docs/#following) to another user's `user` feed to this user's `timeline` feed. All this means is anytime a user posts to their `user` feed (implemented in the first part) we'll see it on our `timeline` feed. The cool part is, we can add any number of user's feeds to our `timeline` feed.
+
+Since we have a new feed type, we need to set this up in Stream. Just like the `user` feed, navigate to the Stream app you set up and create a flat feed group called timeline:
+
+![](images/create-timeline-feed.png)
+
+
+### Step 2 View Timeline
+
+Now that we have a way to follow users we can view our timeline. When we're done, assuming we've followed "bob" and "sara" we'll see a screen that looks like this:
+
+![](images/timeline.png)
+
+Let's look at the code to display our timeline:
+
+```dart
+// mobile/lib/timeline.dart:34
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<List<dynamic>>(
+    future: _activities,
+    builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+      if (!snapshot.hasData) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      return Container(
+        child: Center(
+          child: RefreshIndicator(
+            onRefresh: _refreshActivities,
+            child: ListView(
+              children: snapshot.data
+                  .map((activity) => ListTile(
+                        title: Text(activity['message']),
+                        subtitle: Text(activity['actor']),
+                      ))
+                  .toList(),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+```
+
+This looks identical to our `Profile` widget using both `FutureBuilder` and `RefreshIndicator` backed by a future `_activities`. Since the `timeline` is just a feed like `user`, the code is identical to how we got our user's messages. First we call `ApiService#getTimeline` which is simple a call to our native code:
+
+```dart
+// mobile/lib/api_service.dart:36
+Future<dynamic> getTimeline(Map account) async {
+  var result =
+      await platform.invokeMethod<String>('getTimeline', {'user': account['user'], 'token': account['feedToken']});
+  return json.decode(result);
+}
+```
+
+And here's the corresponding native code:
+
+```kotlin
+// mobile/android/app/src/main/kotlin/io/getstream/flutter_the_stream/MainActivity.kt:80
+private fun getTimeline(user: String, token: String): List<Activity> {
+  val client = CloudClient.builder(API_KEY, token, user).build()
+
+  return client.flatFeed("timeline").getActivities(Limit(25)).join()
+}
+```
+
+And that's it! We now have a fully functioning mini social network. 
+
+## Final Thoughts
+Flutter and Stream make it straightforward to build a cross-platform mobile application leveraging activity feeds. Both come with a ton of functionality out of the box. If you're looking for an alternative to React Native, Flutter is a great choice. Native code calling is simple with platform channels, and it allows us to use all the great libraries Stream has provided us.  
