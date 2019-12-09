@@ -16,7 +16,7 @@ import org.json.JSONObject
 
 class MainActivity : FlutterActivity() {
   private val CHANNEL = "io.getstream/backend"
-  private val API_KEY = "7mpbqgq2kbh6"
+  private val API_KEY = "<API_KEY>"
 
   override fun onCreate(savedInstanceState: Bundle?) {
 
