@@ -18,8 +18,8 @@ In order to post an update the app will perform these steps:
 
 * User types their name into our mobile application to log in.
 * The mobile app registers user with our backend and receives a Stream Activity Feed [frontend token](https://getstream.io/blog/integrating-with-stream-backend-frontend-options/).
-* User types in their message and hits "Post". Flutter app uses the Stream token to create a Stream activity by using Flutter's [platform channels ](https://flutter.dev/docs/development/platform-integration/platform-channels) to connect to [Stream's REST API](https://getstream.io/docs_rest/) via [Java](https://github.com/GetStream/stream-java) or [Swift](https://github.com/getstream/stream-swift).
-* User views their posts. The mobile app gets their `user` feed.
+* User types in their message and hits "Post". The mobile app uses the Stream token to create a Stream activity by using Flutter's [platform channels ](https://flutter.dev/docs/development/platform-integration/platform-channels) to connect to [Stream's REST API](https://getstream.io/docs_rest/) via [Java](https://github.com/GetStream/stream-java) or [Swift](https://github.com/getstream/stream-swift).
+* User views their posts. The mobile app does this by retrieving their `user` feed via Stream.
 
 If another user wants to follow a user and view their messages, the app goes through this process:
 * Log in (see above).
