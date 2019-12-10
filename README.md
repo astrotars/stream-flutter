@@ -32,7 +32,7 @@ The code is split between the Flutter mobile application contained in the `mobil
 
 Basic knowledge of [Node.js](https://nodejs.org/en/) (JavaScript) and [Flutter](https://flutter.dev/) ([Dart](https://dart.dev/)) is required to follow this tutorial. This code is intended to run locally on your machine. 
 
-If you'd like to follow along, you'll need an account with [Stream](https://getstream.io/accounts/signup/). Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive)
+If you'd like to follow along, you'll need an account with [Stream](https://getstream.io/accounts/signup/). Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive).
 
 Once you have an account with Stream, you need to set up a development app:
 
