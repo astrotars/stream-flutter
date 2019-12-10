@@ -1,12 +1,12 @@
-# TheStream: Building a Social Network w/ Stream Activity Feeds and Flutter
+# Stream Flutter: Building a Social Network w/ Stream Activity Feeds and Flutter
 
-In this post, we'll be creating a simple social network, called TheStream, that allows a user to post messages to followers. 
+In this post, we'll be creating a simple social network, called Stream Flutter, that allows a user to post messages to followers. 
 
 The app will allow a user to post a message to their followers. Stream's [Activity Feed API](https://getstream.io/activity-feeds/) combined with Google's [Flutter](https://flutter.dev/) makes it straightforward to build this sort of complex interaction. All source code for this application is available on [GitHub](https://github.com/psylinse/flutter_the_stream). This application is fully functional on both iOS and Android. 
 
 For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented. To keep things focused, we'll be showing the more important code snippets to get each pieces idea across. Often there is context around those code snippets which are important, such as layout or navigation. Please refer to the full source if you're confused on how something works, or how we got to a screen. Each snippet will be accompanied with a comment explaining which file and line it came from.
 
-## Building TheStream: Activity Feeds
+## Building Stream Flutter: Activity Feeds
 
 To build our social network we'll need both a backend and a mobile application. Most of the work is done in the mobile application, but we need the backend to securely create frontend tokens for interacting with the Stream API.
 
