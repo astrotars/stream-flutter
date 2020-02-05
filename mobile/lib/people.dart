@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'api_service.dart';
+import 'chat.dart';
 
 class People extends StatefulWidget {
   People({Key key, @required this.account}) : super(key: key);
@@ -32,17 +33,27 @@ class _PeopleState extends State<People> {
         return ListView(
           children: snapshot.data
               .where((u) => u != widget.account['user'])
-              .map((u) => ListTile(
-                    title: Text(u),
+              .map((user) => ListTile(
+                    title: Text(user),
                     onTap: () {
                       showDialog<String>(
                         context: context,
-                        builder: (BuildContext context) => AlertDialog(content: Text("Click to follow"), actions: [
+                        builder: (BuildContext context) => AlertDialog(content: Text("Select an Action"), actions: [
                           FlatButton(
                             child: const Text('Follow'),
                             onPressed: () async {
-                              await ApiService().follow(widget.account, u);
+                              await ApiService().follow(widget.account, user);
                               Navigator.pop(context, "Followed");
+                            },
+                          ),
+                          FlatButton(
+                            child: const Text('Chat'),
+                            onPressed: () {
+                              Navigator.pop(context); // close dialog
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => Chat(account: widget.account, user: user)),
+                              );
                             },
                           )
                         ]),
