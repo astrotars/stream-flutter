@@ -5,7 +5,6 @@ dotenv.config();
 
 exports.streamFeedCredentials = async (req, res) => {
   try {
-    const data = req.body;
     const apiKey = process.env.STREAM_API_KEY;
     const apiSecret = process.env.STREAM_API_SECRET;
     const appId = process.env.STREAM_APP_ID;

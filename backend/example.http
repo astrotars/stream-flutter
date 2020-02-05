@@ -8,10 +8,19 @@ Content-Type: application/json
 
 ###
 POST http://localhost:8080/v1/stream-feed-credentials
-Authorization: Bearer KA4hQjnPvypBkZ08CCX8cs/Vjug0nAAS5A+TzHwcp9E=
+Authorization: Bearer bizUnKitaJqXBEmE+ixqn+U+56zdWWo9OB6bHeR+1kE=
 Accept: application/json
 Content-Type: application/json
 
 {}
 
 ###
+POST http://localhost:8080/v1/stream-chat-credentials
+Authorization: Bearer 1Z0p/2hYWFs1ShYMQ376Vh5B3ZPRcsqJrJcljjwDd48=
+Accept: application/json
+Content-Type: application/json
+
+{}
+
+###
+
