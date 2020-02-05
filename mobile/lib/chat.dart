@@ -38,11 +38,11 @@ class _ChatState extends State<Chat> {
           Container(
             child: Text(
               message,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: user == widget.account['user'] ? Colors.white : Colors.black),
             ),
             padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
             width: 200.0,
-            decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(8.0)),
+            decoration: BoxDecoration(color: user == widget.account['user'] ? Colors.blueAccent : Colors.black12, borderRadius: BorderRadius.circular(8.0)),
             margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
           )
         ]);
@@ -52,13 +52,32 @@ class _ChatState extends State<Chat> {
     return Flexible(
       child: ListView(
         padding: EdgeInsets.all(10.0),
+        reverse: true,
         children: [
           buildMessage(widget.account['user'], 'some message'),
           buildMessage(widget.user, 'another message'),
           buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
+          buildMessage(widget.user, 'another message 5555 '),
           buildMessage(widget.account['user'], 'response'),
         ],
-//      controller: listScrollController,
       ),
     );
   }
@@ -83,6 +102,7 @@ class _ChatState extends State<Chat> {
           // Edit text
           Flexible(
             child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
               child: TextField(
                 style: TextStyle(fontSize: 15.0),
                 controller: _messageController,
@@ -96,10 +116,10 @@ class _ChatState extends State<Chat> {
 
           // Button send message
           Material(
-            child: new Container(
-              margin: new EdgeInsets.symmetric(horizontal: 8.0),
-              child: new IconButton(
-                icon: new Icon(Icons.send),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.send),
                 onPressed: () => 0,
               ),
             ),
@@ -109,8 +129,8 @@ class _ChatState extends State<Chat> {
       ),
       width: double.infinity,
       height: 50.0,
-      decoration: new BoxDecoration(
-          border: new Border(top: new BorderSide(color: Colors.blueGrey, width: 0.5)), color: Colors.white),
+      decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: Colors.blueGrey, width: 0.5)), color: Colors.white),
     );
   }
 
