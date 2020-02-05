@@ -47,4 +47,16 @@ class ApiService {
     return await platform.invokeMethod<bool>(
         'follow', {'user': account['user'], 'token': account['feedToken'], 'userToFollow': userToFollow});
   }
+
+  Future<dynamic> getChatMessages(Map account, String userToChatWith) async {
+    var result = await platform.invokeMethod<String>(
+        'getChatMessages', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
+    return json.decode(result);
+  }
+
+  Future<bool> postChatMessage(Map account, String userToChatWith, String message) async {
+    var result = await platform.invokeMethod<bool>('postChatMessage',
+        {'user': account['user'], 'userToChatWith': userToChatWith, 'message': message, 'token': account['chatToken']});
+    return result;
+  }
 }

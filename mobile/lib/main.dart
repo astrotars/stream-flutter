@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'user': _userController.text,
           'authToken': creds['authToken'],
           'feedToken': creds['feedToken'],
+          'chatToken': creds['chatToken'],
         };
       });
     } else {

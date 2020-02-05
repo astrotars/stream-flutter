@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'api_service.dart';
+
 class Chat extends StatefulWidget {
   Chat({Key key, @required this.account, @required this.user}) : super(key: key);
 
@@ -12,86 +14,51 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final _messageController = TextEditingController();
+  Future<dynamic> _messages;
 
   @override
   void initState() {
+    _messages = ApiService().getChatMessages(widget.account, widget.user);
     super.initState();
   }
 
-  Future _postMessage(BuildContext context) async {
-//    if (_messageController.text.length > 0) {
-//      await ApiService().postMessage(widget.account, _messageController.text);
-//      Navigator.pop(context, true);
-//    } else {
-//      Scaffold.of(context).showSnackBar(
-//        SnackBar(
-//          content: Text('Please type a message'),
-//        ),
-//      );
-//    }
+  Future _postMessage() async {
+    if (_messageController.text.length > 0) {
+      await ApiService().postChatMessage(widget.account, widget.user, _messageController.text);
+      _messageController.clear();
+      setState(() {
+        _messages = ApiService().getChatMessages(widget.account, widget.user);
+      });
+    }
   }
 
-  Widget buildMessage(String user, String message) {
+  Widget buildMessage(dynamic message) {
     return Row(
-        mainAxisAlignment: user == widget.account['user'] ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          Container(
-            child: Text(
-              message,
-              style: TextStyle(color: user == widget.account['user'] ? Colors.white : Colors.black),
-            ),
-            padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-            width: 200.0,
-            decoration: BoxDecoration(color: user == widget.account['user'] ? Colors.blueAccent : Colors.black12, borderRadius: BorderRadius.circular(8.0)),
-            margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
-          )
-        ]);
+      mainAxisAlignment: message['userId'] == widget.account['user'] ? MainAxisAlignment.end : MainAxisAlignment.start,
+      children: [
+        Container(
+          child: Text(
+            message['text'],
+            style: TextStyle(color: message['userId'] == widget.account['user'] ? Colors.white : Colors.black),
+          ),
+          padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+          width: 200.0,
+          decoration: BoxDecoration(
+              color: message['userId'] == widget.account['user'] ? Colors.blueAccent : Colors.black12,
+              borderRadius: BorderRadius.circular(8.0)),
+          margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
+        )
+      ],
+    );
   }
 
-  Widget buildMessages() {
+  Widget buildMessages(dynamic messages) {
     return Flexible(
       child: ListView(
         padding: EdgeInsets.all(10.0),
         reverse: true,
-        children: [
-          buildMessage(widget.account['user'], 'some message'),
-          buildMessage(widget.user, 'another message'),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.user, 'another message 5555 '),
-          buildMessage(widget.account['user'], 'response'),
-        ],
+        children: messages.reversed.map<Widget>(buildMessage).toList(),
       ),
-    );
-  }
-
-  Widget buildLoading() {
-    return Positioned(
-      child: false
-          ? Container(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-              color: Colors.white.withOpacity(0.8),
-            )
-          : Container(),
     );
   }
 
@@ -120,7 +87,7 @@ class _ChatState extends State<Chat> {
               margin: EdgeInsets.symmetric(horizontal: 8.0),
               child: IconButton(
                 icon: Icon(Icons.send),
-                onPressed: () => 0,
+                onPressed: _postMessage,
               ),
             ),
             color: Colors.white,
@@ -129,8 +96,8 @@ class _ChatState extends State<Chat> {
       ),
       width: double.infinity,
       height: 50.0,
-      decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.blueGrey, width: 0.5)), color: Colors.white),
+      decoration:
+          BoxDecoration(border: Border(top: BorderSide(color: Colors.blueGrey, width: 0.5)), color: Colors.white),
     );
   }
 
@@ -138,17 +105,25 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat: ${widget.user}"),
+        title: Text("Chat with ${widget.user}"),
       ),
       body: Builder(
         builder: (context) {
-          return Stack(children: [
-            Column(children: [
-              buildMessages(),
-              buildInput(),
-            ]),
-            buildLoading(),
-          ]);
+          return FutureBuilder<dynamic>(
+            future: _messages,
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              return Column(
+                children: [
+                  buildMessages(snapshot.data),
+                  buildInput(),
+                ],
+              );
+            },
+          );
         },
       ),
     );
