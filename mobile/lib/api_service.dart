@@ -78,7 +78,6 @@ class ApiService {
     );
 
     return () {
-      platform.invokeMethod('stopChannel', channelName);
       subscription.cancel();
     };
   }

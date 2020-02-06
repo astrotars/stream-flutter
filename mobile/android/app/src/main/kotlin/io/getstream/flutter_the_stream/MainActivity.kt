@@ -69,13 +69,6 @@ class MainActivity : FlutterActivity() {
           call.argument<String>("userToFollow")!!
         )
         result.success(true)
-      } else if (call.method == "getChatMessages") {
-        getChatMessages(
-          result,
-          call.argument<String>("user")!!,
-          call.argument<String>("userToChatWith")!!,
-          call.argument<String>("token")!!
-        )
       } else if (call.method == "postChatMessage") {
         postChatMessage(
           result,
@@ -137,31 +130,16 @@ class MainActivity : FlutterActivity() {
     return true
   }
 
-  private fun getChatMessages(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
-    val client = StreamChat.getInstance(this.application)
-    val channel = client.channel("messaging", listOf(user, userToChatWith).sorted().joinToString("-"))
-
-    channel.query(ChannelQueryRequest().withMessages(50), object : QueryChannelCallback {
-      override fun onSuccess(response: ChannelState) {
-        result.success(ObjectMapper().writeValueAsString(response.messages))
-      }
-
-      override fun onError(errMsg: String, errCode: Int) {
-
-
-      }
-    })
-  }
-
   private fun setupChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
     val application = this.application;
     val channelName = listOf(user, userToChatWith).sorted().joinToString("-")
-    val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelName}")
+    var subId : Int? = null;
+    val client = StreamChat.getInstance(application)
+    val channel = client.channel("messaging", channelName)
 
+    val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelName}")
     eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
       override fun onListen(listener: Any, eventSink: EventChannel.EventSink) {
-        val client = StreamChat.getInstance(application)
-        val channel = client.channel("messaging", channelName)
         channel.watch(ChannelWatchRequest(), object : QueryWatchCallback {
           override fun onSuccess(response: ChannelState) {
             eventSink.success(ObjectMapper().writeValueAsString(response.messages))
@@ -172,7 +150,7 @@ class MainActivity : FlutterActivity() {
           }
         })
 
-        channel.addEventHandler(object : ChatChannelEventHandler() {
+        subId = channel.addEventHandler(object : ChatChannelEventHandler() {
           override fun onMessageNew(event: Event) {
             eventSink.success(ObjectMapper().writeValueAsString(listOf(event.message)))
           }
@@ -180,7 +158,8 @@ class MainActivity : FlutterActivity() {
       }
 
       override fun onCancel(listener: Any) {
-//        cancelListening(listener)
+        channel.removeEventHandler(subId)
+        eventChannels.remove(channelName)
       }
     })
 

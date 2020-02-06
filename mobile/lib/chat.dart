@@ -15,10 +15,22 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   final _messageController = TextEditingController();
   List<dynamic> _messages;
+  CancelListening cancelChannel;
 
   @override
   void initState() {
-    ApiService().listenToChannel(widget.account, widget.user, (messages) {
+    _setupChannel();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    cancelChannel();
+    super.dispose();
+  }
+
+  Future _setupChannel() async {
+    cancelChannel = await ApiService().listenToChannel(widget.account, widget.user, (messages) {
       setState(() {
         var prevMessages = [];
         if (_messages != null) {
@@ -27,7 +39,6 @@ class _ChatState extends State<Chat> {
         _messages = prevMessages + messages;
       });
     });
-    super.initState();
   }
 
   Future _postMessage() async {
