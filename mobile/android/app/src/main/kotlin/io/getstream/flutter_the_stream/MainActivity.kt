@@ -8,16 +8,18 @@ import com.getstream.sdk.chat.model.Event
 import com.getstream.sdk.chat.rest.Message
 import com.getstream.sdk.chat.rest.User
 import com.getstream.sdk.chat.rest.core.ChatChannelEventHandler
+import com.getstream.sdk.chat.rest.interfaces.CompletableCallback
 import com.getstream.sdk.chat.rest.interfaces.MessageCallback
 import com.getstream.sdk.chat.rest.interfaces.QueryChannelCallback
 import com.getstream.sdk.chat.rest.interfaces.QueryWatchCallback
 import com.getstream.sdk.chat.rest.request.ChannelQueryRequest
 import com.getstream.sdk.chat.rest.request.ChannelWatchRequest
 import com.getstream.sdk.chat.rest.response.ChannelState
+import com.getstream.sdk.chat.rest.response.CompletableResponse
 import com.getstream.sdk.chat.rest.response.MessageResponse
 
 import io.flutter.app.FlutterActivity
-import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import io.getstream.cloud.CloudClient
 import io.getstream.core.models.Activity
@@ -131,9 +133,9 @@ class MainActivity : FlutterActivity() {
   }
 
   private fun setupChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
-    val application = this.application;
+    val application = this.application
     val channelName = listOf(user, userToChatWith).sorted().joinToString("-")
-    var subId : Int? = null;
+    var subId : Int? = null
     val client = StreamChat.getInstance(application)
     val channel = client.channel("messaging", channelName)
 
@@ -158,6 +160,13 @@ class MainActivity : FlutterActivity() {
       }
 
       override fun onCancel(listener: Any) {
+        channel.stopWatching(object : CompletableCallback {
+          override fun onSuccess(response: CompletableResponse?) {
+          }
+
+          override fun onError(errMsg: String?, errCode: Int) {
+          }
+        })
         channel.removeEventHandler(subId)
         eventChannels.remove(channelName)
       }
