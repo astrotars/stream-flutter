@@ -14,12 +14,16 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final _messageController = TextEditingController();
-  Future<dynamic> _messages;
+  Future<List<dynamic>> _messages;
 
   @override
   void initState() {
-    _messages = ApiService().getChatMessages(widget.account, widget.user);
+    _messages = _getMessages();
     super.initState();
+  }
+
+  Future<List<dynamic>> _getMessages() async {
+    return await ApiService().getChatMessages(widget.account, widget.user);
   }
 
   Future _postMessage() async {
@@ -27,7 +31,7 @@ class _ChatState extends State<Chat> {
       await ApiService().postChatMessage(widget.account, widget.user, _messageController.text);
       _messageController.clear();
       setState(() {
-        _messages = ApiService().getChatMessages(widget.account, widget.user);
+        _messages = _getMessages();
       });
     }
   }

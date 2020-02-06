@@ -37,5 +37,5 @@ exports.authenticate = async (req, res) => {
 };
 
 exports.users = async (req, res) => {
-  res.json({ users: Array.from(usersStorage.values()) });
+  res.json({ users: Array.from(new Set(usersStorage.values())) });
 };

@@ -48,7 +48,7 @@ class ApiService {
         'follow', {'user': account['user'], 'token': account['feedToken'], 'userToFollow': userToFollow});
   }
 
-  Future<dynamic> getChatMessages(Map account, String userToChatWith) async {
+  Future<List<dynamic>> getChatMessages(Map account, String userToChatWith) async {
     var result = await platform.invokeMethod<String>(
         'getChatMessages', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
     return json.decode(result);
