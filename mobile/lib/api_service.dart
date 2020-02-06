@@ -3,10 +3,16 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
+typedef void Listener(dynamic msg);
+typedef void CancelListening();
+
 class ApiService {
   static const platform = const MethodChannel('io.getstream/backend');
+
   static const _baseUrl =
       'http://10.0.2.2:8080'; // android only, for both platforms use something like: https://ngrok.com/
+
+  int nextListenerId = 1;
 
   Future<Map> login(String user) async {
     var authResponse = await http.post('$_baseUrl/v1/users', body: {'sender': user});
@@ -17,6 +23,7 @@ class ApiService {
     var chatResponse =
         await http.post('$_baseUrl/v1/stream-chat-credentials', headers: {'Authorization': 'Bearer $authToken'});
     var chatToken = json.decode(chatResponse.body)['token'];
+    await platform.invokeMethod('setupChat', {'user': user, 'token': chatToken});
 
     return {'authToken': authToken, 'feedToken': feedToken, 'chatToken': chatToken};
   }
@@ -58,5 +65,21 @@ class ApiService {
     var result = await platform.invokeMethod<bool>('postChatMessage',
         {'user': account['user'], 'userToChatWith': userToChatWith, 'message': message, 'token': account['chatToken']});
     return result;
+  }
+
+  Future<CancelListening> listenToChannel(Map account, String userToChatWith, Listener listener) async {
+    var channelName = await platform.invokeMethod<String>(
+        'setupChannel', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
+    var subscription = EventChannel('io.getstream/events/$channelName').receiveBroadcastStream(nextListenerId++).listen(
+      (results) {
+        listener(json.decode(results));
+      },
+      cancelOnError: true,
+    );
+
+    return () {
+      platform.invokeMethod('stopChannel', channelName);
+      subscription.cancel();
+    };
   }
 }

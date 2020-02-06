@@ -14,25 +14,26 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final _messageController = TextEditingController();
-  Future<List<dynamic>> _messages;
+  List<dynamic> _messages;
 
   @override
   void initState() {
-    _messages = _getMessages();
+    ApiService().listenToChannel(widget.account, widget.user, (messages) {
+      setState(() {
+        var prevMessages = [];
+        if (_messages != null) {
+          prevMessages = _messages;
+        }
+        _messages = prevMessages + messages;
+      });
+    });
     super.initState();
-  }
-
-  Future<List<dynamic>> _getMessages() async {
-    return await ApiService().getChatMessages(widget.account, widget.user);
   }
 
   Future _postMessage() async {
     if (_messageController.text.length > 0) {
       await ApiService().postChatMessage(widget.account, widget.user, _messageController.text);
       _messageController.clear();
-      setState(() {
-        _messages = _getMessages();
-      });
     }
   }
 
@@ -113,20 +114,15 @@ class _ChatState extends State<Chat> {
       ),
       body: Builder(
         builder: (context) {
-          return FutureBuilder<dynamic>(
-            future: _messages,
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
+          if (_messages == null) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-              return Column(
-                children: [
-                  buildMessages(snapshot.data),
-                  buildInput(),
-                ],
-              );
-            },
+          return Column(
+            children: [
+              buildMessages(_messages),
+              buildInput(),
+            ],
           );
         },
       ),
