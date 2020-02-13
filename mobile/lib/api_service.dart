@@ -62,9 +62,9 @@ class ApiService {
   }
 
   Future<bool> postChatMessage(Map account, String userToChatWith, String message) async {
-    var result = await platform.invokeMethod<bool>('postChatMessage',
+    await platform.invokeMethod('postChatMessage',
         {'user': account['user'], 'userToChatWith': userToChatWith, 'message': message, 'token': account['chatToken']});
-    return result;
+    return true;
   }
 
   Future<CancelListening> listenToChannel(Map account, String userToChatWith, Listener listener) async {

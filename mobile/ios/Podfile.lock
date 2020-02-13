@@ -12,27 +12,52 @@ PODS:
   - GetStream/Faye (2.1.0):
     - Faye
     - GetStream/Core
+  - GzipSwift (5.0.0)
   - Moya (13.0.1):
     - Moya/Core (= 13.0.1)
   - Moya/Core (13.0.1):
     - Alamofire (~> 4.1)
     - Result (~> 4.1)
+  - ReachabilitySwift (4.3.1)
   - Result (4.1.0)
+  - RxAppState (1.6.0):
+    - RxCocoa (~> 5.0)
+    - RxSwift (~> 5.0)
+  - RxCocoa (5.0.1):
+    - RxRelay (~> 5)
+    - RxSwift (~> 5)
+  - RxRelay (5.0.1):
+    - RxSwift (~> 5)
+  - RxSwift (5.0.1)
   - Starscream (3.1.1)
+  - StreamChatCore (1.5.6):
+    - GzipSwift (~> 5.0.0)
+    - ReachabilitySwift (~> 4.3.0)
+    - RxAppState (~> 1.6.0)
+    - RxSwift (~> 5.0.0)
+    - Starscream (~> 3.1.0)
   - Swime (3.0.6)
 
 DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
   - GetStream (~> 2.0)
+  - StreamChatCore (~> 1.0)
 
 SPEC REPOS:
   trunk:
     - Alamofire
     - Faye
     - GetStream
+    - GzipSwift
     - Moya
+    - ReachabilitySwift
     - Result
+    - RxAppState
+    - RxCocoa
+    - RxRelay
+    - RxSwift
     - Starscream
+    - StreamChatCore
     - Swime
 
 EXTERNAL SOURCES:
@@ -44,11 +69,18 @@ SPEC CHECKSUMS:
   Faye: be7f08638a7c27da87714716ab5bfc970d4eda6d
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   GetStream: 3850b3f7e0ba262cbbb3e1382b43b58b3df60fbc
+  GzipSwift: 5592f4d62b641e04d06443ba471f8ed76b1363e4
   Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
+  ReachabilitySwift: 4032e2f59586e11e3b0ebe15b167abdd587a388b
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
+  RxAppState: b633d7370970ecb80081912ea08a7bf3eb644b4e
+  RxCocoa: e741b9749968e8a143e2b787f1dfbff2b63d0a5c
+  RxRelay: 89d54507f4fd4d969e6ec1d4bd7f3673640b4640
+  RxSwift: e2dc62b366a3adf6a0be44ba9f405efd4c94e0c4
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
+  StreamChatCore: 559ebec64876b1faac7676ea3cb476c8d63f08dc
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
 
-PODFILE CHECKSUM: 752a23c1794d16411c27ada3a026a1058d741def
+PODFILE CHECKSUM: b4dee30fa105fa93c7e45049fe36ac157be1e597
 
 COCOAPODS: 1.8.4

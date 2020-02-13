@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '9.0'
+platform :ios, '11.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -62,6 +62,7 @@ target 'Runner' do
   }
 
   pod 'GetStream', '~> 2.0'
+  pod 'StreamChatCore', '~> 1.0'
 end
 
 # Prevent Cocoapods from embedding a second Flutter framework and causing an error with the new Xcode build system.
