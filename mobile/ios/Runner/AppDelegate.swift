@@ -9,7 +9,6 @@ import RxSwift
     let appId: String = "<APP_ID>";
     let apiKey: String = "<API_KEY>";
     var feed: FlatFeed?; // this is necessary to ensure the callback fires, otherwise the reference may be GC'd
-    var eventChannel: FlutterEventChannel?; // same
     
     override func application(
         _ application: UIApplication,
@@ -117,8 +116,8 @@ import RxSwift
         guard let controller = window?.rootViewController as? FlutterViewController else {
           fatalError("rootViewController is not type FlutterViewController")
         }
-        eventChannel = FlutterEventChannel(name: "io.getstream/events/\(channelName)", binaryMessenger: controller.binaryMessenger)
-        eventChannel!.setStreamHandler(ChatStreamHandler(channel: channel))
+        let eventChannel = FlutterEventChannel(name: "io.getstream/events/\(channelName)", binaryMessenger: controller.binaryMessenger)
+        eventChannel.setStreamHandler(ChatStreamHandler(channel: channel))
         
         result(channelName)
     }
@@ -191,12 +190,10 @@ final class PostActivity: EnrichedActivity<GetStream.User, String, DefaultReacti
 
 @objc class ChatStreamHandler: NSObject, FlutterStreamHandler {
     public let channel: Channel
-    private let watch : Observable<ChannelResponse>
+    private var subscription : Disposable?
     
     init(channel: Channel) {
         self.channel = channel
-        self.watch = channel.watch()
-       
     }
     
     func onListen(withArguments arguments: Any?, eventSink: @escaping FlutterEventSink) -> FlutterError? {
@@ -204,7 +201,7 @@ final class PostActivity: EnrichedActivity<GetStream.User, String, DefaultReacti
             eventSink(String(data: try! JSONEncoder().encode(response.messages.map(self.formatMessage)), encoding: .utf8)!)
         })
         
-        channel.onEvent(EventType.messageNew).subscribe(onNext: { event in
+        self.subscription = channel.onEvent(EventType.messageNew).subscribe(onNext: { event in
             if case .messageNew(let message, _, _, _, _) = event {
                 eventSink(String(data: try! JSONEncoder().encode([self.formatMessage(message: message)]), encoding: .utf8)!)
             }
@@ -213,6 +210,7 @@ final class PostActivity: EnrichedActivity<GetStream.User, String, DefaultReacti
     }
     
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        subscription?.dispose()
         return nil
     }
     

@@ -78,8 +78,9 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Widget buildInput() {
+  Widget buildInput(context) {
     return Container(
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
         children: <Widget>[
           // Edit text
@@ -132,7 +133,7 @@ class _ChatState extends State<Chat> {
           return Column(
             children: [
               buildMessages(_messages),
-              buildInput(),
+              buildInput(context),
             ],
           );
         },
