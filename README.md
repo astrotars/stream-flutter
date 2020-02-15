@@ -1,4 +1,5 @@
 # Stream Flutter: Building a Social Network with Stream and Flutter
+## Part 1: Activity Feeds
 
 In this post, we'll be creating a simple social network, called Stream Flutter, that allows a user to post messages to followers. 
 
