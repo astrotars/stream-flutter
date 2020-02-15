@@ -85,7 +85,7 @@ exports.streamChatCredentials = async (req, res) => {
 
     const user = Object.assign({}, data, {
       id: req.user.sender,
-      role: 'user',
+      role: 'admin',
       image: `https://robohash.org/${req.user.sender}`,
     });
     const token = client.createToken(user.id);
@@ -260,7 +260,7 @@ Once we've got the correct channel initialized, we create a Stream `Message` add
 
 ## User views messages
 
-### Step 1: Loading initial messages
+### Step 1: Streaming messages
 
 When we boot the chat widget, we want to grab the initial messages from the channel. We'll store this in an instance variable that is initialized in `initState`:
 
@@ -345,7 +345,7 @@ private fun setupChannel(result: MethodChannel.Result, user: String, userToChatW
         }
 
         override fun onError(errMsg: String, errCode: Int) {
-          // handle errors
+          eventSink.error(errCode.toString(), errMsg, null)
         }
       })
 
@@ -394,4 +394,54 @@ Looking at the `onListen` method, we see this is where we tell the channel we'd 
 After we've told Stream that we're listening, we then need to bind to the channel's event stream. We add an event handler that implements [`ChatChannelEventHandler`](https://getstream.github.io/stream-chat-android/com/getstream/sdk/chat/rest/core/ChatChannelEventHandler.html). We override the one event we care about which is `onMessageNew`. Whenever we get a new event, we pull the message off and send it to the `eventSink`.
 
 When the dart side has decided to cancel the stream, the `EventChannel`'s `onCancel` method will be called. We tell the channel we're done by calling `stopWatching`, remove the event handler and forget about the `EventChannel`.
+
+### Step 2: Displaying messages
+
+Now that we're streaming messages to our Flutter code and storing them in our `_messages` variable, we can show them. First, we build a `ListView` that contains our messages:
+
+```dart
+// mobile/lib/chat.dart:71
+Widget buildMessages() {
+  return Flexible(
+    child: ListView(
+      padding: EdgeInsets.all(10.0),
+      reverse: true,
+      children: _messages.reversed.map<Widget>(buildMessage).toList(),
+    ),
+  );
+}
+```
+
+We reverse the list to show the most recent message on bottom. This also makes it so the `ListView` scrolls to the bottom of the list by default, which is the messaging UX users expect. Each message is then it's own `Widget` that shows our messages on the right in a blue bubble and the other user's messages in a grey bubble on the left. 
+
+```dart
+// mobile/lib/chat.dart:51
+Widget buildMessage(dynamic message) {
+  return Row(
+    mainAxisAlignment: message['userId'] == widget.account['user'] ? MainAxisAlignment.end : MainAxisAlignment.start,
+    children: [
+      Container(
+        child: Text(
+          message['text'],
+          style: TextStyle(color: message['userId'] == widget.account['user'] ? Colors.white : Colors.black),
+        ),
+        padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+        width: 200.0,
+        decoration: BoxDecoration(
+            color: message['userId'] == widget.account['user'] ? Colors.blueAccent : Colors.black12,
+            borderRadius: BorderRadius.circular(8.0)),
+        margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
+      )
+    ],
+  );
+}
+```
+
+The final result will look like this:
+
+![](images/chat-complete.png)
+
+## Final Thoughts
+
+
 

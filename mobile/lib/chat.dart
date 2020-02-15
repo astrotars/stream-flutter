@@ -68,12 +68,12 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Widget buildMessages(dynamic messages) {
+  Widget buildMessages() {
     return Flexible(
       child: ListView(
         padding: EdgeInsets.all(10.0),
         reverse: true,
-        children: messages.reversed.map<Widget>(buildMessage).toList(),
+        children: _messages.reversed.map<Widget>(buildMessage).toList(),
       ),
     );
   }
@@ -132,7 +132,7 @@ class _ChatState extends State<Chat> {
 
           return Column(
             children: [
-              buildMessages(_messages),
+              buildMessages(),
               buildInput(context),
             ],
           );

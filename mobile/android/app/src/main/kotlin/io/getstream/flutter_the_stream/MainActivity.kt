@@ -148,7 +148,7 @@ class MainActivity : FlutterActivity() {
           }
 
           override fun onError(errMsg: String, errCode: Int) {
-            // handle errors
+            eventSink.error(errCode.toString(), errMsg, null)
           }
         })
 
@@ -164,7 +164,7 @@ class MainActivity : FlutterActivity() {
           override fun onSuccess(response: CompletableResponse?) {
           }
 
-          override fun onError(errMsg: String?, errCode: Int) {
+          override fun onError(errMsg: String, errCode: Int) {
             // handle errors
           }
         })
