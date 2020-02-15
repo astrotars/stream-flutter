@@ -134,12 +134,12 @@ class MainActivity : FlutterActivity() {
 
   private fun setupChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
     val application = this.application
-    val channelName = listOf(user, userToChatWith).sorted().joinToString("-")
+    val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
     var subId : Int? = null
     val client = StreamChat.getInstance(application)
-    val channel = client.channel("messaging", channelName)
+    val channel = client.channel("messaging", channelId)
+    val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelId}")
 
-    val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelName}")
     eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
       override fun onListen(listener: Any, eventSink: EventChannel.EventSink) {
         channel.watch(ChannelWatchRequest(), object : QueryWatchCallback {
@@ -148,7 +148,7 @@ class MainActivity : FlutterActivity() {
           }
 
           override fun onError(errMsg: String, errCode: Int) {
-            println("test")
+            // handle errors
           }
         })
 
@@ -165,16 +165,17 @@ class MainActivity : FlutterActivity() {
           }
 
           override fun onError(errMsg: String?, errCode: Int) {
+            // handle errors
           }
         })
         channel.removeEventHandler(subId)
-        eventChannels.remove(channelName)
+        eventChannels.remove(channelId)
       }
     })
 
-    eventChannels[channelName] = eventChannel
+    eventChannels[channelId] = eventChannel
 
-    result.success(channelName)
+    result.success(channelId)
   }
 
   private fun postChatMessage(result: MethodChannel.Result, user: String, userToChatWith: String, message: String, token: String) {

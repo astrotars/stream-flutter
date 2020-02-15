@@ -67,9 +67,9 @@ class ApiService {
   }
 
   Future<CancelListening> listenToChannel(Map account, String userToChatWith, Listener listener) async {
-    var channelName = await platform.invokeMethod<String>(
+    var channelId = await platform.invokeMethod<String>(
         'setupChannel', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
-    var subscription = EventChannel('io.getstream/events/$channelName').receiveBroadcastStream(nextListenerId++).listen(
+    var subscription = EventChannel('io.getstream/events/$channelId').receiveBroadcastStream(nextListenerId++).listen(
       (results) {
         listener(json.decode(results));
       },

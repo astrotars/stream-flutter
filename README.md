@@ -258,4 +258,140 @@ We start by grabbing the `StreamChat` instance that we created during login via 
 
 Once we've got the correct channel initialized, we create a Stream `Message` add the text and send it to the channel. Stream is smart enough to lazily create the channel if it does not exist when we send our first message. On success we simply respond true. We could choose to send the message back to the Flutter side for display, but since we're listening to the Stream websocket for new messages, we'll see our new message come across there. We'll explore how this is done next.
 
+## User views messages
+
+### Step 1: Loading initial messages
+
+When we boot the chat widget, we want to grab the initial messages from the channel. We'll store this in an instance variable that is initialized in `initState`:
+
+```dart
+// mobile/lib/chat.dart:20
+@override
+void initState() {
+  _setupChannel();
+  super.initState();
+}
+
+// mobile/lib/chat.dart:32
+Future _setupChannel() async {
+  cancelChannel = await ApiService().listenToChannel(widget.account, widget.user, (messages) {
+    setState(() {
+      var prevMessages = [];
+      if (_messages != null) {
+        prevMessages = _messages;
+      }
+      _messages = prevMessages + messages;
+    });
+  });
+}
+```
+
+Here we call to the `ApiService` to start a connection with the channel. The `listenToChannel` method will first query the historical messages and send them along to our callback. Whenever a new set of messages is generated. This happens whenever either user creates a message. 
+
+This widget responds to new messages by setting new state by merging the previously displayed messages with any new messages that have been sent along. 
+
+This stream is open until we explicitly cancel the channel connection. The `listenToChannel` method returns a cancel function. We store this and call it when we're disposing the widget:
+
+```dart
+// mobile/lib/chat.dart:26
+@override
+void dispose() {
+  cancelChannel();
+  super.dispose();
+}
+```
+
+Let's look at how we implement the `listenToChannel` method:
+
+```dart
+// mobile/lib/api_service.dart:69
+Future<CancelListening> listenToChannel(Map account, String userToChatWith, Listener listener) async {
+  var channelId = await platform.invokeMethod<String>(
+      'setupChannel', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
+  var subscription = EventChannel('io.getstream/events/$channelId').receiveBroadcastStream(nextListenerId++).listen(
+    (results) {
+      listener(json.decode(results));
+    },
+    cancelOnError: true,
+  );
+
+  return () {
+    subscription.cancel();
+  };
+}
+```
+
+First we call to the native side to set up the channel. We'll look at this in a second but it essentially starts the websocket connection with Stream's API and returns the channel id. Using this channel id, we bind to a Flutter [EventChannel](https://api.flutter.dev/flutter/services/EventChannel-class.html). This class allows us to build an event bus between the native code and our flutter code. We bind to the broadcast stream under that channel id and start it by calling `listen`. The native code will stream messages to this code that's in a JSON string format. We decode the results and pass them along to the `listener` callback given to this method. 
+
+In order for the caller code to tell us when to cancel this subscription, we return a small void function which wraps our `subscription.cancel` call.
+
+Now we go to the native Android implementation of `setupChannel` to see how we start a streaming connection with Stream.
+
+```kotlin
+// mobile/android/app/src/main/kotlin/io/getstream/flutter_the_stream/MainActivity.kt:135
+private fun setupChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
+  val application = this.application
+  val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
+  var subId : Int? = null
+  val client = StreamChat.getInstance(application)
+  val channel = client.channel("messaging", channelId)
+  val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelId}")
+
+  eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+    override fun onListen(listener: Any, eventSink: EventChannel.EventSink) {
+      channel.watch(ChannelWatchRequest(), object : QueryWatchCallback {
+        override fun onSuccess(response: ChannelState) {
+          eventSink.success(ObjectMapper().writeValueAsString(response.messages))
+        }
+
+        override fun onError(errMsg: String, errCode: Int) {
+          // handle errors
+        }
+      })
+
+      subId = channel.addEventHandler(object : ChatChannelEventHandler() {
+        override fun onMessageNew(event: Event) {
+          eventSink.success(ObjectMapper().writeValueAsString(listOf(event.message)))
+        }
+      })
+    }
+
+    override fun onCancel(listener: Any) {
+      channel.stopWatching(object : CompletableCallback {
+        override fun onSuccess(response: CompletableResponse?) {
+        }
+
+        override fun onError(errMsg: String?, errCode: Int) {
+          // handle errors
+        }
+      })
+      channel.removeEventHandler(subId)
+      eventChannels.remove(channelId)
+    }
+  })
+
+  eventChannels[channelId] = eventChannel
+
+  result.success(channelId)
+}
+```
+
+There's a lot going on here, but we'll walk through it step by step. Essentially, this function does four things: 
+
+1) Setup a Flutter Java [EventChannel](https://api.flutter.dev/javadoc/io/flutter/plugin/common/EventChannel.html).
+2) Tells Stream that we're going to watch this channel (meaning we start a websocket connection) and sends the first page of messages to the event sink.
+3) Binds to the channel's new messages event stream and sends them to the event sink.
+4) Handles when the user cancels this stream and cleans everything up.
+
+Walking through the code, the first thing the code does is sets up the channel with the correct `channelId` using our `StreamChat` singleton. We then build our Flutter `EventChannel` using that `channelId` so we can stream messages (events) back to the dart side. We store this in a map so we can later unbind our event listeners.
+
+To keep things all in one place, the code uses [object expressions](https://kotlinlang.org/docs/reference/object-declarations.html) to instantiate objects of an anonymous class.
+
+The call to `setStreamHandler` takes an object that implements `EventChannel.StreamHandler`. This requires two callback methods `onListen` and `onCancel`. `onListen` happens when the `EventChannel` is listened to, which happens on the dart side (shown above). `onCancel` is called when the listener tells us to stop (also shown above in dart).
+
+Looking at the `onListen` method, we see this is where we tell the channel we'd like to watch it. This method does two things. First it informs Stream that we're going to bind to the channel and listen for any new messages messages. It also queries the last set of messages and calls our `QueryWatchCallback` object's method `onSuccess` with those messages. We send these messages along to our `eventSink` established by our `EventChannel`.
+
+After we've told Stream that we're listening, we then need to bind to the channel's event stream. We add an event handler that implements [`ChatChannelEventHandler`](https://getstream.github.io/stream-chat-android/com/getstream/sdk/chat/rest/core/ChatChannelEventHandler.html). We override the one event we care about which is `onMessageNew`. Whenever we get a new event, we pull the message off and send it to the `eventSink`.
+
+When the dart side has decided to cancel the stream, the `EventChannel`'s `onCancel` method will be called. We tell the channel we're done by calling `stopWatching`, remove the event handler and forget about the `EventChannel`.
 
