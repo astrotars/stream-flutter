@@ -78,7 +78,7 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Widget buildInput(context) {
+  Widget buildInput(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(

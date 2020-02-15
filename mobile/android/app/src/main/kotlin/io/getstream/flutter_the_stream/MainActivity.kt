@@ -189,7 +189,6 @@ class MainActivity : FlutterActivity() {
 
       override fun onError(errMsg: String?, errCode: Int) {
         result.error("FAILURE", errMsg, null)
-
       }
     })
   }

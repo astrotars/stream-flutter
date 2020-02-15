@@ -8,7 +8,6 @@ typedef void CancelListening();
 
 class ApiService {
   static const platform = const MethodChannel('io.getstream/backend');
-
   static const _baseUrl =
       'http://10.0.2.2:8080'; // android only, for both platforms use something like: https://ngrok.com/
 
