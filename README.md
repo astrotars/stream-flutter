@@ -441,7 +441,12 @@ The final result will look like this:
 
 ![](images/chat-complete.png)
 
+And that's it! You now have basic direct messaging between users.
+
 ## Final Thoughts
 
+Now our app has the ability for a user to post updates to their activity stream and direct message other users. Using both the Activity Feed and Chat products from Stream allowed us to build this with virtually no backend. 
 
+A big part of Flutter's power is the ability to leverage native iOS and Android libraries easily. You can do a deeper integration with the Stream libraries by using their out of the box views. Utilizing Flutter's [AndroidView](https://api.flutter.dev/flutter/widgets/AndroidView-class.html) or [UiKitView](https://api.flutter.dev/flutter/widgets/UiKitView-class.html) we can embed Stream Chat Android's [https://github.com/GetStream/stream-chat-android/blob/master/docs/MessageList.md]. Keep in mind this level of integration is still considered in preview and is quite expensive, but it provides an even faster way to get up and running with Stream and Flutter.
 
+Stream is also working hard building a pure [dart library](https://github.com/GetStream/stream-chat-dart). While it's not ready yet, be sure to check back and see when it's ready for production.
