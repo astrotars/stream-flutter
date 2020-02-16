@@ -5,7 +5,7 @@ In the second part of our series, we'll implement direct messaging between users
 
 ## Building Stream Flutter: Direct Messaging
 
-Leveraging our code from part 1, we'll need to modify the backend to create a Stream chat frontend token and do the rest of our work in the mobile application. The Stream chat frontend token allows us to securely authenticate our mobile application with the Stream Chat API so it can directly talk with the API without going through our backend. This token is created and stored as a part of the login process which is defined in part 1.
+Leveraging our code from part 1, we'll modify the backend to create a Stream Chat frontend token and do the rest of our work in the mobile application. The Stream Chat frontend token securely authenticates a client application with the Stream Chat so it can directly talk with the API without going through our backend. This token is created and stored as a part of the login process which is defined in part 1.
 
 For the backend, we'll add in the [Stream Chat JavaScript](https://www.npmjs.com/package/stream-chat) library. 
 
@@ -13,20 +13,20 @@ For the mobile app, we'll build it with Flutter wrapping the Stream Chat [Androi
 
 The app goes through these steps to allow a user to chat with another:
 
-* User navigates to the user list, selects a user, and clicks chat. The mobile application creates/joins a 1-on-1 chat between the two users.
-* The app queries the channel for the last 50 messages and indicates to Stream that we'd like to watch this channel. The mobile app binds to a websocket to receive the stream of messages.
-* The user can type a new message and sends it to the Stream API. 
-* When the message is created, or a message from the other user is received, the mobile application consumes the websocket event and displays the message
+* User navigates to the user list, selects a user, and clicks "Chat". The mobile application joins a 1-on-1 chat channel between the two users.
+* The app queries the channel for previous messages and indicates to Stream that we'd like to watch this channel for new messages. The mobile app listens for new messages.
+* The user creates a new message and sends it to the Stream API. 
+* When the message is created, or a message from the other user is received, the mobile application consumes the event and displays the message.
 
-Since we're relying on the Stream mobile libraries to do the heavy lifting, such as creating the websocket, this process is a dance between the Flutter code and native (Swift/Kotlin). If you'd like to follow along with running code, make sure you get both the backend and mobile app running before continuing.
+Since we're relying on the Stream mobile libraries to do the heavy lifting, such as creating a websocket connection with the Stream API, this process is a dance between the Flutter code and native (Swift/Kotlin) via [Platform Channels](https://flutter.dev/docs/development/platform-integration/platform-channels). If you'd like to follow along , make sure you get both the backend and mobile app running part 1 before continuing.
 
 ## Prerequisites
 
-Basic knowledge of [Node.js](https://nodejs.org/en/) (JavaScript), [Flutter](https://flutter.dev/) ([Dart](https://dart.dev/)), and [Kotlin](https://kotlinlang.org/), is required to follow this tutorial. This code is intended to run locally on your machine. 
+Basic knowledge of [Node.js](https://nodejs.org/en/) (JavaScript), [Flutter](https://flutter.dev/) ([Dart](https://dart.dev/)), and [Kotlin](https://kotlinlang.org/), is required to follow this tutorial. Knowledge of Swift is useful if you want to browse the iOS impelementation. This code is intended to run locally on your machine. 
 
 If you'd like to follow along, you'll need an account with [Stream](https://getstream.io/accounts/signup/). Please make sure you can run a Flutter app, at least on Android. If you haven't done so, make sure you have Flutter [installed](https://flutter.dev/docs/get-started/install). If you're having issues building this project, please check if you can create run a simple application by following the instructions [here](https://flutter.dev/docs/get-started/test-drive).
 
-Once you have an account with Stream, you need to set up a development app:
+Once you have an account with Stream, you need to set up a development app (see part 1):
 
 ![](images/create-app.png)
 
