@@ -6,7 +6,7 @@ The app will allow a user to post a message to their followers and chat with the
 
 For brevity, when we need to drop down to native code, we'll only focus on Android. You can find the corresponding iOS code to see how things are implemented.
 
-This branch (master) contains the final product. If you'd like to see the end result, please see the `README.md` in the `backend` and `frontend` directories to get going. You can find each part of this series by the corresponding git branch or click a link below:
+Part 2 contains the final product. If you'd like to skip the tutorials and see the end result, please see the `README.md` in the `backend` and `frontend` directories on that branch to get going. You can find each part of this series by the corresponding git branch or click a link below:
 
 * [Part 1](https://github.com/nparsons08/stream-flutter/tree/1-social)
 * [Part 2](https://github.com/nparsons08/stream-flutter/tree/2-messaging)
