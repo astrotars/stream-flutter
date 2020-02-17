@@ -3,8 +3,8 @@ package io.getstream.flutter_the_stream
 import android.os.Bundle
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.getstream.sdk.chat.StreamChat
-import com.getstream.sdk.chat.model.Channel
 import com.getstream.sdk.chat.model.Event
+import com.getstream.sdk.chat.model.ModelType
 import com.getstream.sdk.chat.rest.Message
 import com.getstream.sdk.chat.rest.User
 import com.getstream.sdk.chat.rest.core.ChatChannelEventHandler
@@ -137,12 +137,12 @@ class MainActivity : FlutterActivity() {
     val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
     var subId : Int? = null
     val client = StreamChat.getInstance(application)
-    val channel = client.channel("messaging", channelId)
+    val channel = client.channel(ModelType.channel_messaging, channelId, hashMapOf<String, Any>("members" to listOf(user, userToChatWith)))
     val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelId}")
 
     eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
       override fun onListen(listener: Any, eventSink: EventChannel.EventSink) {
-        channel.watch(ChannelWatchRequest(), object : QueryWatchCallback {
+        channel.query(ChannelQueryRequest().withMessages(25).withWatch(), object : QueryChannelCallback {
           override fun onSuccess(response: ChannelState) {
             eventSink.success(ObjectMapper().writeValueAsString(response.messages))
           }
@@ -180,7 +180,8 @@ class MainActivity : FlutterActivity() {
 
   private fun postChatMessage(result: MethodChannel.Result, user: String, userToChatWith: String, message: String, token: String) {
     val client = StreamChat.getInstance(this.application)
-    val channel = client.channel("messaging", listOf(user, userToChatWith).sorted().joinToString("-"))
+    val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
+    val channel = client.channel(ModelType.channel_messaging, channelId, hashMapOf<String, Any>("members" to listOf(user, userToChatWith)))
     val streamMessage = Message()
     streamMessage.text = message
     channel.sendMessage(streamMessage, object : MessageCallback {
