@@ -111,7 +111,7 @@ import RxSwift
     
     private func setupChannel(args: Dictionary<String, String>, result: @escaping FlutterResult) {
         let channelName = [args["user"]!, args["userToChatWith"]!].sorted().joined(separator: "-")
-        let channel = Channel(type: ChannelType.messaging, id: channelName)
+        let channel = Channel(type: ChannelType.messaging, id: channelName, members: [Member(StreamChatCore.User(id: args["user"]!, name: args["user"]!)), Member(StreamChatCore.User(id: args["userToChatWith"]!, name: args["userToChatWith"]!))])
         
         guard let controller = window?.rootViewController as? FlutterViewController else {
           fatalError("rootViewController is not type FlutterViewController")

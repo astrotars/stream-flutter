@@ -1,6 +1,6 @@
 # Stream Flutter Application
 
-⚠️ **You'll need to add your Stream credentials in iOS `AppDelegate.swift` and in android `MainActivity.kt`. If you're running on iOS, you need to set a service such as ngrok so the mobile app can talk to the backend and set the URL in `api_service.dart`** ⚠️
+⚠️ **You'll need to add your Stream credentials in iOS `AppDelegate.swift` and in android `MainActivity.kt`. If you're running on iOS, you need to use a service such as ngrok so the mobile app can talk to the backend and set the URL in `api_service.dart`. You also need to run `pod install` from the `ios` directory.** ⚠️
 
 This project is a starting point for a Stream Flutter application.
 
