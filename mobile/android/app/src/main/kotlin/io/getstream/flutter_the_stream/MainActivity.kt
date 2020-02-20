@@ -80,12 +80,23 @@ class MainActivity : FlutterActivity() {
           call.argument<String>("message")!!,
           call.argument<String>("token")!!
         )
-      } else if (call.method == "setupChannel") {
-        setupChannel(
+      } else if (call.method == "postChannelMessage") {
+        postChannelMessage(
+          result,
+          call.argument<String>("channelId")!!,
+          call.argument<String>("message")!!
+        )
+      } else if (call.method == "setupPrivateChannel") {
+        setupPrivateChannel(
           result,
           call.argument<String>("user")!!,
           call.argument<String>("userToChatWith")!!,
           call.argument<String>("token")!!
+        )
+      } else if (call.method == "setupChannel") {
+        setupChannel(
+          result,
+          call.argument<String>("channelId")!!
         )
       } else if (call.method == "createChannel") {
         createChannel(result, call.argument<String>("channelName")!!)
@@ -100,6 +111,7 @@ class MainActivity : FlutterActivity() {
   private fun setupChat(user: String, token: String) {
     StreamChat.init(API_KEY, applicationContext)
     val client = StreamChat.getInstance(this.application)
+    client.disconnect() // todo: document this in previous posts
     client.setUser(User(user), token)
   }
 
@@ -165,7 +177,7 @@ class MainActivity : FlutterActivity() {
     })
   }
 
-  private fun setupChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
+  private fun setupPrivateChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
     val application = this.application
     val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
     var subId: Int? = null
@@ -211,10 +223,71 @@ class MainActivity : FlutterActivity() {
     result.success(channelId)
   }
 
+  private fun setupChannel(result: MethodChannel.Result, channelId: String) {
+    val application = this.application
+    var subId: Int? = null
+    val client = StreamChat.getInstance(application)
+    val channel = client.channel(ModelType.channel_livestream, channelId)
+    val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelId}")
+
+    eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+      override fun onListen(listener: Any, eventSink: EventChannel.EventSink) {
+        channel.query(ChannelQueryRequest().withMessages(25).withWatch(), object : QueryChannelCallback {
+          override fun onSuccess(response: ChannelState) {
+            eventSink.success(ObjectMapper().writeValueAsString(response.messages))
+          }
+
+          override fun onError(errMsg: String, errCode: Int) {
+            eventSink.error(errCode.toString(), errMsg, null)
+          }
+        })
+
+        subId = channel.addEventHandler(object : ChatChannelEventHandler() {
+          override fun onMessageNew(event: Event) {
+            eventSink.success(ObjectMapper().writeValueAsString(listOf(event.message)))
+          }
+        })
+      }
+
+      override fun onCancel(listener: Any) {
+        channel.stopWatching(object : CompletableCallback {
+          override fun onSuccess(response: CompletableResponse?) {
+          }
+
+          override fun onError(errMsg: String, errCode: Int) {
+            // handle errors
+          }
+        })
+        channel.removeEventHandler(subId)
+        eventChannels.remove(channelId)
+      }
+    })
+
+    eventChannels[channelId] = eventChannel
+
+    result.success(channelId)
+  }
+
   private fun postChatMessage(result: MethodChannel.Result, user: String, userToChatWith: String, message: String, token: String) {
     val client = StreamChat.getInstance(this.application)
     val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
     val channel = client.channel(ModelType.channel_messaging, channelId, hashMapOf<String, Any>("members" to listOf(user, userToChatWith)))
+    val streamMessage = Message()
+    streamMessage.text = message
+    channel.sendMessage(streamMessage, object : MessageCallback {
+      override fun onSuccess(response: MessageResponse?) {
+        result.success(true)
+      }
+
+      override fun onError(errMsg: String?, errCode: Int) {
+        result.error("FAILURE", errMsg, null)
+      }
+    })
+  }
+
+  private fun postChannelMessage(result: MethodChannel.Result, channelId: String, message: String) {
+    val client = StreamChat.getInstance(this.application)
+    val channel = client.channel(ModelType.channel_livestream, channelId)
     val streamMessage = Message()
     streamMessage.text = message
     channel.sendMessage(streamMessage, object : MessageCallback {

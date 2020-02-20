@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'api_service.dart';
-import 'chat.dart';
+import 'livestream_channel.dart';
 
 class Channels extends StatefulWidget {
   Channels({Key key, @required this.account}) : super(key: key);
@@ -40,11 +40,16 @@ class _ChannelsState extends State<Channels> {
           onRefresh: _refreshChannels,
           child: ListView(
             children: snapshot.data
-                .map((channel) =>
-                ListTile(
-                  title: Text(channel),
-                  onTap: () {},
-                ))
+                .map((channel) => ListTile(
+                      title: Text(channel),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => LivestreamChannel(account: widget.account, channelId: channel)),
+                        );
+                      },
+                    ))
                 .toList(),
           ),
         );

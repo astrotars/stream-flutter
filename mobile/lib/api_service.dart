@@ -76,9 +76,28 @@ class ApiService {
     return true;
   }
 
-  Future<CancelListening> listenToChannel(Map account, String userToChatWith, Listener listener) async {
+  Future<bool> postChannelMessage(String channelId, String message) async {
+    await platform.invokeMethod('postChannelMessage', {'channelId': channelId, 'message': message});
+    return true;
+  }
+
+  Future<CancelListening> listenToChannel(String channelId, Listener listener) async {
+    await platform.invokeMethod<String>('setupChannel', {'channelId': channelId});
+    var subscription = EventChannel('io.getstream/events/$channelId').receiveBroadcastStream(nextListenerId++).listen(
+          (results) {
+        listener(json.decode(results));
+      },
+      cancelOnError: true,
+    );
+
+    return () {
+      subscription.cancel();
+    };
+  }
+
+  Future<CancelListening> listenToPrivateChannel(Map account, String userToChatWith, Listener listener) async {
     var channelId = await platform.invokeMethod<String>(
-        'setupChannel', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
+        'setupPrivateChannel', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
     var subscription = EventChannel('io.getstream/events/$channelId').receiveBroadcastStream(nextListenerId++).listen(
       (results) {
         listener(json.decode(results));

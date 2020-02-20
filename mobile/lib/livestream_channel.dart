@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'api_service.dart';
 
-class Chat extends StatefulWidget {
-  Chat({Key key, @required this.account, @required this.user}) : super(key: key);
+class LivestreamChannel extends StatefulWidget {
+  LivestreamChannel({Key key, @required this.account, @required this.channelId}) : super(key: key);
 
   final Map account;
-  final String user;
+  final String channelId;
 
   @override
-  _ChatState createState() => _ChatState();
+  _LivestreamChannelState createState() => _LivestreamChannelState();
 }
 
-class _ChatState extends State<Chat> {
+class _LivestreamChannelState extends State<LivestreamChannel> {
   final _messageController = TextEditingController();
   List<dynamic> _messages;
   CancelListening cancelChannel;
@@ -30,7 +30,7 @@ class _ChatState extends State<Chat> {
   }
 
   Future _setupChannel() async {
-    cancelChannel = await ApiService().listenToPrivateChannel(widget.account, widget.user, (messages) {
+    cancelChannel = await ApiService().listenToChannel(widget.channelId, (messages) {
       setState(() {
         var prevMessages = [];
         if (_messages != null) {
@@ -43,7 +43,7 @@ class _ChatState extends State<Chat> {
 
   Future _postMessage() async {
     if (_messageController.text.length > 0) {
-      await ApiService().postChatMessage(widget.account, widget.user, _messageController.text);
+      await ApiService().postChannelMessage(widget.channelId, _messageController.text);
       _messageController.clear();
     }
   }
@@ -122,7 +122,7 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat with ${widget.user}"),
+        title: Text(widget.channelId),
       ),
       body: Builder(
         builder: (context) {
