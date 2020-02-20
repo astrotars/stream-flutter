@@ -32,6 +32,16 @@ class ApiService {
     return json.decode(response.body)['users'];
   }
 
+  Future<bool> createChannel(String channelName) async {
+    await platform.invokeMethod('createChannel', {'channelName': channelName});
+    return true;
+  }
+
+  Future<List<dynamic>> channels() async {
+    var result = await platform.invokeMethod<String>('getChannels', {});
+    return json.decode(result);
+  }
+
   Future<bool> postMessage(Map account, String message) async {
     return await platform.invokeMethod<bool>(
         'postMessage', {'user': account['user'], 'token': account['feedToken'], 'message': message});

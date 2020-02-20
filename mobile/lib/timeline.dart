@@ -28,7 +28,6 @@ class _TimelineState extends State<Timeline> {
     setState(() {
       _activities = _getTimeline();
     });
-    return null;
   }
 
   @override
@@ -40,19 +39,15 @@ class _TimelineState extends State<Timeline> {
           return Center(child: CircularProgressIndicator());
         }
 
-        return Container(
-          child: Center(
-            child: RefreshIndicator(
-              onRefresh: _refreshActivities,
-              child: ListView(
-                children: snapshot.data
-                    .map((activity) => ListTile(
-                          title: Text(activity['message']),
-                          subtitle: Text(activity['actor']),
-                        ))
-                    .toList(),
-              ),
-            ),
+        return RefreshIndicator(
+          onRefresh: _refreshActivities,
+          child: ListView(
+            children: snapshot.data
+                .map((activity) => ListTile(
+                      title: Text(activity['message']),
+                      subtitle: Text(activity['actor']),
+                    ))
+                .toList(),
           ),
         );
       },

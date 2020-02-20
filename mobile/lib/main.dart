@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'api_service.dart';
+import 'channels.dart';
 import 'new_activity.dart';
+import 'new_channel.dart';
 import 'people.dart';
 import 'profile.dart';
 import 'timeline.dart';
@@ -65,13 +67,49 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     if (_account != null) {
-      var body;
+      var body, floatingButton;
       if (_selectedIndex == 0) {
         body = Timeline(account: _account);
       } else if (_selectedIndex == 1) {
         body = Profile(account: _account);
-      } else {
+        floatingButton = Builder(
+          builder: (context) {
+            return FloatingActionButton(
+              onPressed: () async {
+                var messagePosted = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => NewActivity(account: _account)),
+                );
+
+                if (messagePosted != null) {
+                  Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
+                }
+              },
+              child: Icon(Icons.add),
+            );
+          },
+        );
+      } else if (_selectedIndex == 2) {
         body = People(account: _account);
+      } else {
+        body = Channels(account: _account);
+        floatingButton = Builder(
+          builder: (context) {
+            return FloatingActionButton(
+              onPressed: () async {
+                var channelCreated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => NewChannel()),
+                );
+
+                if (channelCreated != null) {
+                  Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
+                }
+              },
+              child: Icon(Icons.add),
+            );
+          },
+        );
       }
 
       return Scaffold(
@@ -79,27 +117,11 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: body,
-        floatingActionButton: _selectedIndex == 1
-            ? Builder(
-                builder: (context) {
-                  return FloatingActionButton(
-                    onPressed: () async {
-                      var messagePosted = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => NewActivity(account: _account)),
-                      );
-
-                      if (messagePosted != null) {
-                        Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
-                      }
-                    },
-                    tooltip: 'Increment',
-                    child: Icon(Icons.add),
-                  );
-                },
-              )
-            : null,
+        floatingActionButton: floatingButton,
         bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          fixedColor: Colors.blue,
+          unselectedItemColor: Colors.black,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.list),
@@ -112,6 +134,10 @@ class _MyHomePageState extends State<MyHomePage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               title: Text('People'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.apps),
+              title: Text('Channels'),
             ),
           ],
           currentIndex: _selectedIndex,

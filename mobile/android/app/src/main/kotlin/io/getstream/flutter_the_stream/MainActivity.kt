@@ -3,20 +3,21 @@ package io.getstream.flutter_the_stream
 import android.os.Bundle
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.getstream.sdk.chat.StreamChat
+import com.getstream.sdk.chat.enums.FilterObject
+import com.getstream.sdk.chat.enums.QuerySort
 import com.getstream.sdk.chat.model.Event
 import com.getstream.sdk.chat.model.ModelType
 import com.getstream.sdk.chat.rest.Message
 import com.getstream.sdk.chat.rest.User
 import com.getstream.sdk.chat.rest.core.ChatChannelEventHandler
-import com.getstream.sdk.chat.rest.interfaces.CompletableCallback
-import com.getstream.sdk.chat.rest.interfaces.MessageCallback
-import com.getstream.sdk.chat.rest.interfaces.QueryChannelCallback
-import com.getstream.sdk.chat.rest.interfaces.QueryWatchCallback
+import com.getstream.sdk.chat.rest.interfaces.*
 import com.getstream.sdk.chat.rest.request.ChannelQueryRequest
 import com.getstream.sdk.chat.rest.request.ChannelWatchRequest
+import com.getstream.sdk.chat.rest.request.QueryChannelsRequest
 import com.getstream.sdk.chat.rest.response.ChannelState
 import com.getstream.sdk.chat.rest.response.CompletableResponse
 import com.getstream.sdk.chat.rest.response.MessageResponse
+import com.getstream.sdk.chat.rest.response.QueryChannelsResponse
 
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.MethodChannel
@@ -86,6 +87,10 @@ class MainActivity : FlutterActivity() {
           call.argument<String>("userToChatWith")!!,
           call.argument<String>("token")!!
         )
+      } else if (call.method == "createChannel") {
+        createChannel(result, call.argument<String>("channelName")!!)
+      } else if (call.method == "getChannels") {
+        getChannels(result)
       } else {
         result.notImplemented()
       }
@@ -132,10 +137,38 @@ class MainActivity : FlutterActivity() {
     return true
   }
 
+  private fun createChannel(result: MethodChannel.Result, channelName: String) {
+    val client = StreamChat.getInstance(application)
+    val channel = client.channel(ModelType.channel_livestream, channelName)
+    channel.query(ChannelQueryRequest(), object : QueryChannelCallback {
+      override fun onSuccess(response: ChannelState?) {
+        result.success(true)
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+      }
+
+      override fun onError(errMsg: String?, errCode: Int) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+      }
+    })
+  }
+
+  private fun getChannels(result: MethodChannel.Result) {
+    val client = StreamChat.getInstance(application)
+    client.queryChannels(QueryChannelsRequest(FilterObject(hashMapOf("type" to ModelType.channel_livestream)), QuerySort()), object : QueryChannelListCallback {
+      override fun onSuccess(response: QueryChannelsResponse) {
+        result.success(ObjectMapper().writeValueAsString(response.channels.map { it.id }))
+      }
+
+      override fun onError(errMsg: String?, errCode: Int) {
+        println(errMsg)
+      }
+    })
+  }
+
   private fun setupChannel(result: MethodChannel.Result, user: String, userToChatWith: String, token: String) {
     val application = this.application
     val channelId = listOf(user, userToChatWith).sorted().joinToString("-")
-    var subId : Int? = null
+    var subId: Int? = null
     val client = StreamChat.getInstance(application)
     val channel = client.channel(ModelType.channel_messaging, channelId, hashMapOf<String, Any>("members" to listOf(user, userToChatWith)))
     val eventChannel = EventChannel(flutterView, "io.getstream/events/${channelId}")

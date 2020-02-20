@@ -40,18 +40,14 @@ class _ProfileState extends State<Profile> {
           return Center(child: CircularProgressIndicator());
         }
 
-        return Container(
-          child: Center(
-            child: RefreshIndicator(
-              onRefresh: _refreshActivities,
-              child: ListView(
-                children: snapshot.data
-                    .map((activity) => ListTile(
-                          title: Text(activity['message']),
-                        ))
-                    .toList(),
-              ),
-            ),
+        return RefreshIndicator(
+          onRefresh: _refreshActivities,
+          child: ListView(
+            children: snapshot.data
+                .map((activity) => ListTile(
+                      title: Text(activity['message']),
+                    ))
+                .toList(),
           ),
         );
       },
