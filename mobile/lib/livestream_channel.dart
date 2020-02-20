@@ -49,20 +49,34 @@ class _LivestreamChannelState extends State<LivestreamChannel> {
   }
 
   Widget buildMessage(dynamic message) {
+    var isMyMessage = message['userId'] == widget.account['user'];
     return Row(
-      mainAxisAlignment: message['userId'] == widget.account['user'] ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
-        Container(
-          child: Text(
-            message['text'],
-            style: TextStyle(color: message['userId'] == widget.account['user'] ? Colors.white : Colors.black),
-          ),
-          padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-          width: 200.0,
-          decoration: BoxDecoration(
-              color: message['userId'] == widget.account['user'] ? Colors.blueAccent : Colors.black12,
-              borderRadius: BorderRadius.circular(8.0)),
-          margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              child: Text(
+                message['text'],
+                style: TextStyle(color: isMyMessage ? Colors.white : Colors.black),
+              ),
+              padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+              width: 200.0,
+              decoration: BoxDecoration(
+                  color: isMyMessage ? Colors.blueAccent : Colors.black12, borderRadius: BorderRadius.circular(8.0)),
+              margin: EdgeInsets.only(right: 10.0),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 15.0, top: 5.0, bottom: 10.0),
+              child: isMyMessage
+                  ? null
+                  : Text(
+                      message['userId'],
+                      style: TextStyle(color: Colors.black54, fontSize: 10.0),
+                    ),
+            ),
+          ],
         )
       ],
     );
