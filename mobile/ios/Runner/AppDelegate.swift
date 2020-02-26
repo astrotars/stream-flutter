@@ -45,6 +45,14 @@ import RxSwift
                                              message: error.localizedDescription,
                                              details: nil))
                 }
+            } else if call.method == "setupChannel" {
+                do {
+                    self!.setupChannel(args: args, result: result)
+                } catch let error {
+                    result(FlutterError.init(code: "IOS_EXCEPTION_setupChannel",
+                                             message: error.localizedDescription,
+                                             details: nil))
+                }
             } else if call.method == "postChatMessage" {
                 do {
                     self!.postChatMessage(args: args, result: result)
@@ -53,11 +61,27 @@ import RxSwift
                                              message: error.localizedDescription,
                                              details: nil))
                 }
+            } else if call.method == "postChannelMessage" {
+                do {
+                    self!.postChannelMessage(args: args, result: result)
+                } catch let error {
+                    result(FlutterError.init(code: "IOS_EXCEPTION_postChannelMessage",
+                                             message: error.localizedDescription,
+                                             details: nil))
+                }
             } else if call.method == "getActivities" {
                 do {
                     self!.getActivities(args: args, result: result)
                 } catch let error {
                     result(FlutterError.init(code: "IOS_EXCEPTION_getActivities",
+                                             message: error.localizedDescription,
+                                             details: nil))
+                }
+            } else if call.method == "getChannels" {
+                do {
+                    self!.getChannels(args: args, result: result)
+                } catch let error {
+                    result(FlutterError.init(code: "IOS_EXCEPTION_getChannels",
                                              message: error.localizedDescription,
                                              details: nil))
                 }
@@ -110,16 +134,29 @@ import RxSwift
     }
     
     private func setupChannel(args: Dictionary<String, String>, result: @escaping FlutterResult) {
-        let channelName = [args["user"]!, args["userToChatWith"]!].sorted().joined(separator: "-")
-        let channel = Channel(type: ChannelType.messaging, id: channelName, members: [Member(StreamChatCore.User(id: args["user"]!, name: args["user"]!)), Member(StreamChatCore.User(id: args["userToChatWith"]!, name: args["userToChatWith"]!))])
+        let channelId = args["channelId"]!
+        let channel = Channel(type: ChannelType.livestream, id: channelId)
         
         guard let controller = window?.rootViewController as? FlutterViewController else {
-          fatalError("rootViewController is not type FlutterViewController")
+            fatalError("rootViewController is not type FlutterViewController")
         }
-        let eventChannel = FlutterEventChannel(name: "io.getstream/events/\(channelName)", binaryMessenger: controller.binaryMessenger)
+        let eventChannel = FlutterEventChannel(name: "io.getstream/events/\(channelId)", binaryMessenger: controller.binaryMessenger)
         eventChannel.setStreamHandler(ChatStreamHandler(channel: channel))
         
-        result(channelName)
+        result(channelId)
+    }
+    
+    private func setupPrivateChannel(args: Dictionary<String, String>, result: @escaping FlutterResult) {
+        let channelId = [args["user"]!, args["userToChatWith"]!].sorted().joined(separator: "-")
+        let channel = Channel(type: ChannelType.messaging, id: channelId, members: [Member(StreamChatCore.User(id: args["user"]!, name: args["user"]!)), Member(StreamChatCore.User(id: args["userToChatWith"]!, name: args["userToChatWith"]!))])
+        
+        guard let controller = window?.rootViewController as? FlutterViewController else {
+            fatalError("rootViewController is not type FlutterViewController")
+        }
+        let eventChannel = FlutterEventChannel(name: "io.getstream/events/\(channelId)", binaryMessenger: controller.binaryMessenger)
+        eventChannel.setStreamHandler(ChatStreamHandler(channel: channel))
+        
+        result(channelId)
     }
     
     private func postChatMessage(args: Dictionary<String, String>, result: @escaping FlutterResult) {
@@ -131,6 +168,26 @@ import RxSwift
                 result(true)
             }, onError: { err in
                 print(err)
+            })
+    }
+    
+    private func postChannelMessage(args: Dictionary<String, String>, result: @escaping FlutterResult) {
+        let channelId = args["channelId"]!
+        let channel = Channel(type: ChannelType.livestream, id: channelId)
+        channel
+            .send(message: Message(text: args["message"]!))
+            .subscribe(onNext: { _ in
+                result(true)
+            }, onError: { err in
+                print(err)
+            })
+    }
+    
+    private func getChannels(args: Dictionary<String, String>, result: @escaping FlutterResult) {
+        StreamChatCore.Client.shared
+            .channels(query: ChannelsQuery(filter: .key("type", .equal(to: ChannelType.livestream))))
+            .subscribe(onNext: { r in
+                result(String(data: try! JSONEncoder().encode(r.map { $0.channel.id }), encoding: .utf8)!)
             })
     }
     
