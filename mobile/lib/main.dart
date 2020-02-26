@@ -93,23 +93,6 @@ class _MyHomePageState extends State<MyHomePage> {
         body = People(account: _account);
       } else {
         body = Channels(account: _account);
-        floatingButton = Builder(
-          builder: (context) {
-            return FloatingActionButton(
-              onPressed: () async {
-                var channelCreated = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => NewChannel()),
-                );
-
-                if (channelCreated != null) {
-                  Scaffold.of(context)..showSnackBar(SnackBar(content: Text('Message Posted. Pull to refresh.')));
-                }
-              },
-              child: Icon(Icons.add),
-            );
-          },
-        );
       }
 
       return Scaffold(

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'api_service.dart';
+import 'livestream_channel.dart';
 
 class NewChannel extends StatefulWidget {
-  NewChannel({Key key}) : super(key: key);
+  NewChannel({Key key, @required this.account}) : super(key: key);
+
+  Map account;
 
   @override
   _NewChannelState createState() => _NewChannelState();
@@ -17,14 +20,19 @@ class _NewChannelState extends State<NewChannel> {
     super.initState();
   }
 
-  Future _postMessage(BuildContext context) async {
+  Future _createChannel(BuildContext context) async {
     if (_messageController.text.length > 0) {
-      await ApiService().createChannel(_messageController.text);
-      Navigator.pop(context, true);
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LivestreamChannel(account: widget.account, channelId: _messageController.text),
+          ),
+          result: true
+      );
     } else {
       Scaffold.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please type a message'),
+          content: Text('Please type a channel name'),
         ),
       );
     }
@@ -34,7 +42,7 @@ class _NewChannelState extends State<NewChannel> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Post Message"),
+        title: Text("Create new channel"),
       ),
       body: Builder(
         builder: (context) {
@@ -47,8 +55,8 @@ class _NewChannelState extends State<NewChannel> {
                     controller: _messageController,
                   ),
                   MaterialButton(
-                    onPressed: () => _postMessage(context),
-                    child: Text("Post"),
+                    onPressed: () => _createChannel(context),
+                    child: Text("create"),
                   ),
                 ],
               ),

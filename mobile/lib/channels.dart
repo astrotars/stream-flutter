@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'api_service.dart';
 import 'livestream_channel.dart';
+import 'new_channel.dart';
 
 class Channels extends StatefulWidget {
   Channels({Key key, @required this.account}) : super(key: key);
@@ -36,21 +37,43 @@ class _ChannelsState extends State<Channels> {
           return Center(child: CircularProgressIndicator());
         }
 
+        var tiles = [
+          ListTile(
+              title: Center(child: OutlineButton(child: Text("Create New Channel"))),
+              onTap: () async {
+                var channelCreated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => NewChannel(account: widget.account)),
+                );
+
+                if (channelCreated) {
+                  setState(() {
+                    _channels = ApiService().channels();
+                  });
+                }
+              })
+        ];
+
+        tiles.addAll(
+          snapshot.data
+              .map((channel) => ListTile(
+                    title: Text(channel),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => LivestreamChannel(account: widget.account, channelId: channel),
+                        ),
+                      );
+                    },
+                  ))
+              .toList(),
+        );
+
         return RefreshIndicator(
           onRefresh: _refreshChannels,
           child: ListView(
-            children: snapshot.data
-                .map((channel) => ListTile(
-                      title: Text(channel),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => LivestreamChannel(account: widget.account, channelId: channel)),
-                        );
-                      },
-                    ))
-                .toList(),
+            children: tiles,
           ),
         );
       },

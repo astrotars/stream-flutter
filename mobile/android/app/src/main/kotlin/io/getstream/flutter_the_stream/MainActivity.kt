@@ -98,8 +98,6 @@ class MainActivity : FlutterActivity() {
           result,
           call.argument<String>("channelId")!!
         )
-      } else if (call.method == "createChannel") {
-        createChannel(result, call.argument<String>("channelName")!!)
       } else if (call.method == "getChannels") {
         getChannels(result)
       } else {
@@ -147,21 +145,6 @@ class MainActivity : FlutterActivity() {
 
     client.flatFeed("timeline").follow(client.flatFeed("user", userToFollow)).join()
     return true
-  }
-
-  private fun createChannel(result: MethodChannel.Result, channelName: String) {
-    val client = StreamChat.getInstance(application)
-    val channel = client.channel(ModelType.channel_livestream, channelName)
-    channel.query(ChannelQueryRequest(), object : QueryChannelCallback {
-      override fun onSuccess(response: ChannelState?) {
-        result.success(true)
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-      }
-
-      override fun onError(errMsg: String?, errCode: Int) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-      }
-    })
   }
 
   private fun getChannels(result: MethodChannel.Result) {
