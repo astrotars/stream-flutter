@@ -41,7 +41,7 @@ import RxSwift
                 do {
                     self!.setupPrivateChannel(args: args, result: result)
                 } catch let error {
-                    result(FlutterError.init(code: "IOS_EXCEPTION_setupChannel",
+                    result(FlutterError.init(code: "IOS_EXCEPTION_setupPrivateChannel",
                                              message: error.localizedDescription,
                                              details: nil))
                 }
