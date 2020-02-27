@@ -20,17 +20,17 @@ class _NewChannelState extends State<NewChannel> {
   }
 
   Future _createChannel(BuildContext context) async {
-    if (_messageController.text.length > 0) {
+    if (_messageController.text.length > 0 && RegExp(r'^[a-zA-Z0-9]+$').hasMatch(_messageController.text)) {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => LivestreamChannel(account: widget.account, channelId: _messageController.text),
+            builder: (_) => LivestreamChat(account: widget.account, channelId: _messageController.text),
           ),
           result: true);
     } else {
       Scaffold.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please type a channel name'),
+          content: Text('Please type a channel ID. It can only contain letters and numbers with no whitespace.'),
         ),
       );
     }

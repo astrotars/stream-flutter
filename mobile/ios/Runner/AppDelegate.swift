@@ -118,7 +118,6 @@ import RxSwift
         self.feed = client.flatFeed(feedSlug: "user")
         let activity = PostActivity(actor: User(id: args["user"]!), verb: "post", object: UUID().uuidString, message: args["message"]!)
         feed!.add(activity) {result in
-            print("callback")
             print(result)
         }
         result(true)

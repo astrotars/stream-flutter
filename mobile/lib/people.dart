@@ -52,7 +52,7 @@ class _PeopleState extends State<People> {
                               Navigator.pop(context); // close dialog
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => Chat(account: widget.account, user: user)),
+                                MaterialPageRoute(builder: (_) => PrivateChat(account: widget.account, user: user)),
                               );
                             },
                           )

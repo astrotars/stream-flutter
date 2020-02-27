@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'api_service.dart';
 
-class Chat extends StatefulWidget {
-  Chat({Key key, @required this.account, @required this.user}) : super(key: key);
+class PrivateChat extends StatefulWidget {
+  PrivateChat({Key key, @required this.account, @required this.user}) : super(key: key);
 
   final Map account;
   final String user;
 
   @override
-  _ChatState createState() => _ChatState();
+  _PrivateChatState createState() => _PrivateChatState();
 }
 
-class _ChatState extends State<Chat> {
+class _PrivateChatState extends State<PrivateChat> {
   final _messageController = TextEditingController();
   List<dynamic> _messages;
   CancelListening cancelChannel;

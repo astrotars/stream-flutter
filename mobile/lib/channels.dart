@@ -67,7 +67,7 @@ class _ChannelsState extends State<Channels> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => LivestreamChannel(account: widget.account, channelId: channel),
+                          builder: (_) => LivestreamChat(account: widget.account, channelId: channel),
                         ),
                       );
                     },

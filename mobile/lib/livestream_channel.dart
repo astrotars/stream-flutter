@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'api_service.dart';
 
-class LivestreamChannel extends StatefulWidget {
-  LivestreamChannel({Key key, @required this.account, @required this.channelId}) : super(key: key);
+class LivestreamChat extends StatefulWidget {
+  LivestreamChat({Key key, @required this.account, @required this.channelId}) : super(key: key);
 
   final Map account;
   final String channelId;
 
   @override
-  _LivestreamChannelState createState() => _LivestreamChannelState();
+  _LivestreamChatState createState() => _LivestreamChatState();
 }
 
-class _LivestreamChannelState extends State<LivestreamChannel> {
+class _LivestreamChatState extends State<LivestreamChat> {
   final _messageController = TextEditingController();
   List<dynamic> _messages;
   CancelListening cancelChannel;
