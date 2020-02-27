@@ -3,8 +3,6 @@
 
 In the second part of our series, we'll implement direct messaging between users by integrating [Stream Chat](https://getstream.io/chat/). This post assumes you've followed along with [part 1](https://github.com/nparsons08/stream-flutter/tree/1-social). 
 
-## Building Stream Flutter: Direct Messaging
-
 Leveraging our code from part 1, we'll modify the backend to generate a Stream Chat frontend token so we can do the rest of the work in the mobile application. The Stream Chat frontend token securely authenticates a client application with the Stream Chat so it can directly talk with the API without going through our backend. This token is created and stored as a part of the login process which is defined in part 1.
 
 For the backend, we'll add in the [Stream Chat JavaScript](https://www.npmjs.com/package/stream-chat) library. 
