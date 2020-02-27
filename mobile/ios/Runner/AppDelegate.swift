@@ -37,9 +37,9 @@ import RxSwift
                                              message: error.localizedDescription,
                                              details: nil))
                 }
-            } else if call.method == "setupChannel" {
+            } else if call.method == "setupPrivateChannel" {
                 do {
-                    self!.setupChannel(args: args, result: result)
+                    self!.setupPrivateChannel(args: args, result: result)
                 } catch let error {
                     result(FlutterError.init(code: "IOS_EXCEPTION_setupChannel",
                                              message: error.localizedDescription,
