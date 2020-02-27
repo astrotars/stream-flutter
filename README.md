@@ -16,7 +16,7 @@ The app goes through these steps to allow a user to chat with another:
 * The user creates a new message and sends it to the Stream API. 
 * When the message is created, or a message from the other user is received, the mobile application consumes the event and displays the message.
 
-Since we're relying on the Stream mobile libraries to do the heavy lifting, such as creating a websocket connection with the Stream API, this process is a dance between the Flutter code and native (Swift/Kotlin) via [Platform Channels](https://flutter.dev/docs/development/platform-integration/platform-channels). If you'd like to follow along , make sure you get both the backend and mobile app running part 1 before continuing.
+Since we're relying on the Stream mobile libraries to do the heavy lifting, such as creating a websocket connection with the Stream API, this process is a dance between the Flutter code and native (Swift/Kotlin) via [Platform Channels](https://flutter.dev/docs/development/platform-integration/platform-channels). If you'd like to follow along, make sure you get both the backend and mobile app running part 1 before continuing.
 
 ## Prerequisites
 
