@@ -12,19 +12,14 @@ class NewChannel extends StatefulWidget {
 }
 
 class _NewChannelState extends State<NewChannel> {
-  final _messageController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  final _channelIdController = TextEditingController();
 
   Future _createChannel(BuildContext context) async {
-    if (_messageController.text.length > 0 && RegExp(r'^[a-zA-Z0-9]+$').hasMatch(_messageController.text)) {
+    if (_channelIdController.text.length > 0 && RegExp(r'^[a-zA-Z0-9]+$').hasMatch(_channelIdController.text)) {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => LivestreamChat(account: widget.account, channelId: _messageController.text),
+            builder: (_) => LivestreamChat(account: widget.account, channelId: _channelIdController.text),
           ),
           result: true);
     } else {
@@ -40,7 +35,7 @@ class _NewChannelState extends State<NewChannel> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create new channel"),
+        title: Text("Create New Channel"),
       ),
       body: Builder(
         builder: (context) {
@@ -50,7 +45,7 @@ class _NewChannelState extends State<NewChannel> {
               child: Column(
                 children: [
                   TextField(
-                    controller: _messageController,
+                    controller: _channelIdController,
                   ),
                   RaisedButton(
                     onPressed: () => _createChannel(context),

@@ -6,8 +6,8 @@ import RxSwift
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-    let appId: String = "<APP_ID>";
-    let apiKey: String = "<API_KEY>";
+    let appId: String = "70874";
+    let apiKey: String = "whe3wer2pf4r";
     var feed: FlatFeed?; // this is necessary to ensure the callback fires, otherwise the reference may be GC'd
     
     override func application(

@@ -23,12 +23,6 @@ class _LivestreamChatState extends State<LivestreamChat> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    cancelChannel();
-    super.dispose();
-  }
-
   Future _setupChannel() async {
     cancelChannel = await ApiService().listenToChannel(widget.channelId, (messages) {
       setState(() {
@@ -39,6 +33,12 @@ class _LivestreamChatState extends State<LivestreamChat> {
         _messages = prevMessages + messages;
       });
     });
+  }
+  
+  @override
+  void dispose() {
+    cancelChannel();
+    super.dispose();
   }
 
   Future _postMessage() async {

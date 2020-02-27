@@ -41,7 +41,7 @@ class _ChannelsState extends State<Channels> {
           ListTile(
             title: Center(
               child: RaisedButton(
-                child: Text("Create New Channel"),
+                child: Text("New Channel"),
                 onPressed: () async {
                   var channelCreated = await Navigator.push(
                     context,

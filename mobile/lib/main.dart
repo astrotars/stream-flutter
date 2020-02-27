@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       } else if (_selectedIndex == 2) {
         body = People(account: _account);
-      } else {
+      } else if (_selectedIndex == 3) {
         body = Channels(account: _account);
       }
 

@@ -221,7 +221,7 @@ class MainActivity : FlutterActivity() {
           }
 
           override fun onError(errMsg: String, errCode: Int) {
-            eventSink.error(errCode.toString(), errMsg, null)
+            // handle errors
           }
         })
 
