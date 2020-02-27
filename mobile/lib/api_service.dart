@@ -79,7 +79,7 @@ class ApiService {
   Future<CancelListening> listenToChannel(String channelId, Listener listener) async {
     await platform.invokeMethod<String>('setupChannel', {'channelId': channelId});
     var subscription = EventChannel('io.getstream/events/$channelId').receiveBroadcastStream(nextListenerId++).listen(
-          (results) {
+      (results) {
         listener(json.decode(results));
       },
       cancelOnError: true,
@@ -91,8 +91,8 @@ class ApiService {
   }
 
   Future<CancelListening> listenToPrivateChannel(Map account, String userToChatWith, Listener listener) async {
-    var channelId = await platform.invokeMethod<String>(
-        'setupPrivateChannel', {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
+    var channelId = await platform.invokeMethod<String>('setupPrivateChannel',
+        {'user': account['user'], 'userToChatWith': userToChatWith, 'token': account['chatToken']});
     var subscription = EventChannel('io.getstream/events/$channelId').receiveBroadcastStream(nextListenerId++).listen(
       (results) {
         listener(json.decode(results));

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'api_service.dart';
 import 'livestream_channel.dart';
 
 class NewChannel extends StatefulWidget {
@@ -27,8 +26,7 @@ class _NewChannelState extends State<NewChannel> {
           MaterialPageRoute(
             builder: (_) => LivestreamChannel(account: widget.account, channelId: _messageController.text),
           ),
-          result: true
-      );
+          result: true);
     } else {
       Scaffold.of(context).showSnackBar(
         SnackBar(
@@ -54,9 +52,9 @@ class _NewChannelState extends State<NewChannel> {
                   TextField(
                     controller: _messageController,
                   ),
-                  MaterialButton(
+                  RaisedButton(
                     onPressed: () => _createChannel(context),
-                    child: Text("create"),
+                    child: Text("Create Channel"),
                   ),
                 ],
               ),

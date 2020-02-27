@@ -39,19 +39,24 @@ class _ChannelsState extends State<Channels> {
 
         var tiles = [
           ListTile(
-              title: Center(child: OutlineButton(child: Text("Create New Channel"))),
-              onTap: () async {
-                var channelCreated = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => NewChannel(account: widget.account)),
-                );
+            title: Center(
+              child: RaisedButton(
+                child: Text("Create New Channel"),
+                onPressed: () async {
+                  var channelCreated = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => NewChannel(account: widget.account)),
+                  );
 
-                if (channelCreated) {
-                  setState(() {
-                    _channels = ApiService().channels();
-                  });
-                }
-              })
+                  if (channelCreated != null) {
+                    setState(() {
+                      _channels = ApiService().channels();
+                    });
+                  }
+                },
+              ),
+            ),
+          )
         ];
 
         tiles.addAll(

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'api_service.dart';
 import 'channels.dart';
 import 'new_activity.dart';
-import 'new_channel.dart';
 import 'people.dart';
 import 'profile.dart';
 import 'timeline.dart';
