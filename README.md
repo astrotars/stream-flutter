@@ -565,4 +565,4 @@ Future _refreshChannels() async {
 ```
 This method simply sets the state to a new `Future` that will complete with the latest list of channels. Once that completes, we'll see the updated list. 
 
-That's it. We now have a fully functioning group chat via Stream Channels!
+That's it. We now have a fully functioning group chat via Stream Chat and Flutter!
