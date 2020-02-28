@@ -58,7 +58,7 @@ This boots the `Channels` widget that shows a list of channels and allows the us
 
 ## Step 2: Creating a group channel
 
-When the user first arrives at this screen it will be empty if no one else has created any channels. We'll add a new channel button to the widget. Since this will be a list of group channels, we'll use a `ListView` with a single item, our new button, in it for now. We'll talk about how the `FutureBuilder` and `RefreshIndicator` with the `_channel` state in a bit. Here is the structural code with the "New Channel" button:
+When the user first arrives at this screen it will be empty if no one else has created any channels. To start, add a new channel button to the widget. Since this will be a list of group channels, we use a `ListView` with a single item, our new button, in it for now. We'll talk about how the `FutureBuilder` and `RefreshIndicator` with the `_channel` state in a bit. Here is the structural code with the "New Channel" button:
 
 ```dart
 // mobile/lib/channels.dart:31
@@ -102,7 +102,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-Our first list item is a button. When the user clicks the button we navigate to a new widget called `NewChannel`. We check the return value of `Navigator.push` to check channel creation. If it was created, we'll refresh the channel list (we'll look at it in a bit). 
+Our first list item, stored in the variable `tiles`, is a button (we'll add the channels to the list later). When the user clicks the button we navigate to a new widget called `NewChannel`. We check the return value of `Navigator.push` to check channel creation. If it was created, we'll refresh the channel list (we'll look at it in a bit). 
 
 Upon navigating, the user sees a form to create the channel. This is a simple widget where the user types in a channel id and creates the channel:
 
@@ -166,7 +166,7 @@ class _NewChannelState extends State<NewChannel> {
 
 Here we see a simple Flutter form, backed with a `TextEditingController`. First thing is to check is the text is a valid channel id. Stream Chat has rules around what a channel id can look like, and for simplicity, we'll just create and list channels by this id. You can refer to the [docs](https://getstream.io/chat/docs/initialize_channel/?language=js) if you'd like to add a separate channel name. 
 
-Once a user submits a channel id, we simply navigate to the `LivestreamChannel` widget. Notice we don't create a channel in Stream here. Stream lazily creates channels upon our first interaction with them. The `LivestreamChannel` will query and watch the channel which will force its creation. Also, we use the name "Livestream" to mirror the type of channel we'll using in Stream. Livestream is the default channel type we want since in part 4 we'll implement live video into our group channel. If none of the default types work for your application, you can create your own channel types.
+Once a user submits a channel id, we simply navigate to the `LivestreamChannel` widget. Notice we don't create a channel in Stream here. Stream lazily creates channels upon our first interaction with it, such as querying the channel or sending a message. In our case, the `LivestreamChannel` will query and watch the channel which will force its creation. We use the name "Livestream" to mirror the type of channel we'll using in Stream. Livestream is the default channel type we want, since in part 4, we'll implement live video into our group channel. If none of the default types work for your application, you can create your own channel types.
 
 Here is what the user sees when first joining a group channel:
 
@@ -200,7 +200,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-This is a simple scaffold that shows the id of the channel at the top and two pieces, the message list and the new message input. When we initialize this widget, we listen to the channel, very similar to how we listened to direct message channels in part 2. We do this in the `initState` method:
+This is a simple scaffold that shows the id of the channel at the top and two pieces, the message list and the new message input. The `_messages` variable will be null to start, indicating we haven't attempted to loaded anything. This will be populated once we load the channels. To do this, we listen to the channel upon widget initialization, very similar to how we listened to direct message channels in part 2. We do this in the `initState` method:
 
 ```dart
 // mobile/lib/livestream_channel.dart:20
@@ -223,7 +223,7 @@ Future _setupChannel() async {
 }
 ```
 
-We call the method `.listenToChannel` on the `ApiService`. This sets queries and watches the corresponding Stream channel. This means that it will give the initial set of messages, and subsequent messages to us. Every time we receive messages, we merge them into the previously displayed set. We'll see how to display these messages in a few steps.
+We call the method `.listenToChannel` on the `ApiService`. This sets queries and watches the corresponding Stream channel. This means that it will give the initial set of messages, and subsequent messages to us until we cancel the connection. Every time we receive messages, we merge them into the previously displayed set. We'll see how to display these messages in a few steps.
 
 We also store a `cancelChannel` function which allows the widget to stop listening once it's disposed of:
 
@@ -236,7 +236,9 @@ void dispose() {
 }
 ```
 
-This is important, otherwise, we'd have strange behavior due to orphaned listeners hanging around. Let's look at the implementation of `.listenToChannel`:
+This is important, otherwise, we'd have strange behavior due to orphaned listeners hanging around. 
+
+Now, let's look at the implementation of `.listenToChannel`:
 
 ```dart
 // mobile/lib/api_service.dart:79
@@ -255,7 +257,7 @@ Future<CancelListening> listenToChannel(String channelId, Listener listener) asy
 }
 ```
 
-This is identical to how we set things up in part 3 except for the channel id. Since we're given an id by the user, we don't need to generate one. This method tells the native side to set up the channel with Stream and starts an `EventChannel` with that channel id. Once that's done, we subscribe to the [EventChannel](https://api.flutter.dev/flutter/services/EventChannel-class.html) which allows the native side to stream messages to us. We take that stream, listen to it, and parse any results that come across and pass them along to the widget.
+This is identical to how we set things up in part 2's direct messaging except for the channel id. Since we're given an id by the user, we don't need to generate one. This method tells the native side to set up the channel with Stream and starts an `EventChannel` with that channel id. Once that's done, we subscribe to the [EventChannel](https://api.flutter.dev/flutter/services/EventChannel-class.html) which allows the native side to stream messages to us. We listen to that event stream and parse any results that come across and pass them along to the caller.
 
 Next we go to our `setupChannel` implementation in Kotlin. This method coordinates with Stream, establishes a channel connection, and creates an event stream to send data back to the Flutter side:
 
@@ -311,13 +313,15 @@ This code is what communicates with Stream. First, we create a `Channel` object 
 
 Next, we start a Flutter [EventChannel](https://api.flutter.dev/javadoc/io/flutter/plugin/common/EventChannel.html) in Kotlin. This allows us to stream data back to the Flutter side. In our `.onListen` method, which is called when the Flutter side subscribes to the `EventChannel`, we query the channel for the initial set of messages and tell Stream to watch for future messages. This initial query will create the channel in Stream if it doesn't exist. The initial set of messages will trigger our `QueryChannelCallback` and they're sent over the `EventChannel` as a JSON string. 
 
-To receive future messages, we need to register an event handler with the channel. This is done by calling `channel.addEventHandler`. Since we indicated we'd like to watch the channel when we did our initial query, any future messages will be sent to our `ChatChannelEventHandler` callback. We send these over the `EventChannel` as a JSON string, just like above. 
+To receive future messages, we need to register an event handler with the channel. This is done by calling `channel.addEventHandler`. Since we indicated we'd like to watch the channel when we did our initial query, any future messages will be sent to our `ChatChannelEventHandler` callback. We send these over the `EventChannel` as a JSON string, just like the initial query. 
 
-When the Flutter side indicates they'd like to cancel, the `.onCancel` is called. We simply stop watching and clean up our event handlers. Now the user is ready to send their first message.
+When the Flutter side indicates they'd like to cancel, the `.onCancel` is called. We simply stop watching and clean up our event handlers. 
+
+Now that the channel is setup and we're listening, the user is ready to send their first message.
 
 ## Step 3: Sending a message
 
-First, we'll need an input and submit button:
+First, we'll need an input and submit button. Back in our `LivestreamChannel` we have:
 
 ```dart
 // mobile/lib/livestream_channel.dart:95
@@ -411,7 +415,7 @@ Here we create a Stream `Message` and send it to the channel. There's not a lot 
 
 ## Step 4: Viewing messages
 
-We're finally ready to view all our hard work. Since we're already listening to the channel, which was set up in part 2, all we need to do is display the messages. We create a list view that takes up the rest of the space not taken by our create message input:
+We're finally ready to view our messages. Since we're already listening to the channel, which was set up in part 2, all we need to do is display the messages. We create a list view that takes up the rest of the space not taken by our create message input:
 
 ```dart
 // mobile/lib/livestream_channel.dart:51
@@ -470,7 +474,7 @@ Now a user can go back to the channel list and view all the channels, including 
 
 ![](images/group-chat-list.png)
 
-All that's left to get this widget fully functional is plugging in the calls to `ApiService.channels` and adding those to our list view. First, when we first boot the widget in `initState`, we need to load the channels:
+All that's left to get this widget fully functional is querying Stream for a list of channels and adding those to our list view. First, when we first boot the widget in `initState`, we need to load the channels:
 
 ```dart
 // mobile/lib/channels.dart:19
@@ -526,7 +530,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-Once that data loads, we can use the `snapshot.data` from the `FutureBuilder` to add to our `ListView` inside our `.build` method:
+Once that data loads, we can use the `snapshot.data` from the `FutureBuilder` to add to our `ListView`'s `tiles` inside our `.build` method:
 
 ```dart
 // mobile/lib/channels.dart:62
@@ -561,4 +565,4 @@ Future _refreshChannels() async {
 ```
 This method simply sets the state to a new `Future` that will complete with the latest list of channels. Once that completes, we'll see the updated list. 
 
-That's it! We now have a fully functioning group chat via Stream Channels!
+That's it. We now have a fully functioning group chat via Stream Channels!
