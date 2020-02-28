@@ -41,11 +41,21 @@ class _LivestreamChatState extends State<LivestreamChat> {
     super.dispose();
   }
 
-  Future _postMessage() async {
+  Future _sendMessage() async {
     if (_messageController.text.length > 0) {
-      await ApiService().postChannelMessage(widget.channelId, _messageController.text);
+      await ApiService().sendChannelMessage(widget.channelId, _messageController.text);
       _messageController.clear();
     }
+  }
+
+  Widget buildMessages() {
+    return Flexible(
+      child: ListView(
+        padding: EdgeInsets.all(10.0),
+        reverse: true,
+        children: _messages.reversed.map<Widget>(buildMessage).toList(),
+      ),
+    );
   }
 
   Widget buildMessage(dynamic message) {
@@ -82,16 +92,6 @@ class _LivestreamChatState extends State<LivestreamChat> {
     );
   }
 
-  Widget buildMessages() {
-    return Flexible(
-      child: ListView(
-        padding: EdgeInsets.all(10.0),
-        reverse: true,
-        children: _messages.reversed.map<Widget>(buildMessage).toList(),
-      ),
-    );
-  }
-
   Widget buildInput(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -118,7 +118,7 @@ class _LivestreamChatState extends State<LivestreamChat> {
               margin: EdgeInsets.symmetric(horizontal: 8.0),
               child: IconButton(
                 icon: Icon(Icons.send),
-                onPressed: _postMessage,
+                onPressed: _sendMessage,
               ),
             ),
             color: Colors.white,

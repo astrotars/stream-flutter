@@ -49,9 +49,7 @@ class _ChannelsState extends State<Channels> {
                   );
 
                   if (channelCreated != null) {
-                    setState(() {
-                      _channels = ApiService().channels();
-                    });
+                    _refreshChannels();
                   }
                 },
               ),

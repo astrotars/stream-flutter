@@ -71,7 +71,7 @@ class ApiService {
     return true;
   }
 
-  Future<bool> postChannelMessage(String channelId, String message) async {
+  Future<bool> sendChannelMessage(String channelId, String message) async {
     await platform.invokeMethod('postChannelMessage', {'channelId': channelId, 'message': message});
     return true;
   }

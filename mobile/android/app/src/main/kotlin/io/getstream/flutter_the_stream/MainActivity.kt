@@ -155,7 +155,7 @@ class MainActivity : FlutterActivity() {
       }
 
       override fun onError(errMsg: String?, errCode: Int) {
-        println(errMsg)
+        // handle errors
       }
     })
   }
@@ -263,7 +263,7 @@ class MainActivity : FlutterActivity() {
       }
 
       override fun onError(errMsg: String?, errCode: Int) {
-        result.error("FAILURE", errMsg, null)
+        // handle errors
       }
     })
   }
@@ -279,7 +279,7 @@ class MainActivity : FlutterActivity() {
       }
 
       override fun onError(errMsg: String?, errCode: Int) {
-        result.error("FAILURE", errMsg, null)
+        // handle errors
       }
     })
   }
