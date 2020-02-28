@@ -8,8 +8,8 @@ Using our code from part 2, we only need to add to our `frontend` Flutter applic
 The app goes through these steps to enable group chat:
 
 * User navigates to a list of chat channels they can join. To start there will be none, so they must create the first one.
-* The user hits "Create Chat Channel" and generates a chat channel with an id. 
-* The mobile app queries the channel for previous messages and indicates to Stream that we'd like to watch this channel for new messages. The mobile app listens for new messages.
+* The user clicks "New Channel" to create a new chat channel.
+* The mobile app queries the channel for previous messages and indicates to Stream that we'd like to watch this channel for new messages. This process creates the channel in Stream. This The mobile app listens for new messages.
 * The user creates a new message and sends it to the Stream Chat API. Stream broadcasts this message to all users watching that channel. 
 * When the message is broadcast, including messages created by the user, the mobile application consumes the event and displays the message.
 
