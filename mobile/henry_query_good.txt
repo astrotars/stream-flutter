@@ -1,0 +1,64 @@
+Performing hot restart...
+Syncing files to device sdk gphone x86...
+E/AccessibilityBridge( 6400): VirtualView node must not be the root node.
+Restarted application in 938ms.
+D/StreamWebSocketService( 6400): WebSocket # 1 Response : {"type":"user.updated","user":{"id":"henry","role":"user","created_at":"2020-03-03T18:28:53.948145Z","updated_at":"2020-03-03T18:28:54.695303Z","last_active":"2020-03-03T18:28:54.689594Z","banned":false,"online":false,"image":"https://robohash.org/henry"},"created_at":"2020-03-03T18:30:37.115305975Z"}
+D/StreamWebSocketService( 6400): Received event of type USER_UPDATED
+D/ClientState( 6400): updateUsers
+D/Client  ( 6400): disconnecting
+I/Client  ( 6400): disconnecting websocket
+I/StreamWebSocketService( 6400): disconnect was called
+W/StreamChat( 6400): connection status changed to offline
+D/ClientState( 6400): reset
+D/Client  ( 6400): setting user: henry
+D/ClientState( 6400): setCurrentUser: com.getstream.sdk.chat.rest.User@df01379
+I/Client  ( 6400): client.connect was called
+D/Client  ( 6400): Go get a new token
+D/Client  ( 6400): We got another token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiaGVucnkifQ.yxRWqSWhvxgsQJ3SfrjZFaqAWQAdtGKuaBuxQH_lKxY
+D/Client  ( 6400): WebSocket URL : wss://chat-us-east-1.stream-io-api.com/connect?json=%7B%22user_id%22%3A%22henry%22%2C%22user_details%22%3A%7B%22id%22%3A%22henry%22%7D%2C%22server_determines_connection_id%22%3Atrue%7D&api_key=whe3wer2pf4r&authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiaGVucnkifQ.yxRWqSWhvxgsQJ3SfrjZFaqAWQAdtGKuaBuxQH_lKxY&stream-auth-type=jwt
+I/StreamWebSocketService( 6400): connect...
+I/StreamWebSocketService( 6400): setupWS
+W/tter_the_strea( 6400): Accessing hidden method Lsun/misc/Unsafe;->putOrderedObject(Ljava/lang/Object;JLjava/lang/Object;)V (greylist, linking, allowed)
+W/tter_the_strea( 6400): Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z (greylist, linking, allowed)
+W/tter_the_strea( 6400): Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapInt(Ljava/lang/Object;JII)Z (greylist, linking, allowed)
+I/StreamWebSocketService( 6400): setHealth true
+D/StreamWebSocketService( 6400): WebSocket #1 Connected : Response{protocol=http/1.1, code=101, message=Switching Protocols, url=https://chat-us-east-1.stream-io-api.com/connect?json=%7B%22user_id%22%3A%22henry%22%2C%22user_details%22%3A%7B%22id%22%3A%22henry%22%7D%2C%22server_determines_connection_id%22%3Atrue%7D&api_key=whe3wer2pf4r&authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiaGVucnkifQ.yxRWqSWhvxgsQJ3SfrjZFaqAWQAdtGKuaBuxQH_lKxY&stream-auth-type=jwt}
+W/StreamChat( 6400): connection status changed to online
+D/StreamWebSocketService( 6400): WebSocket # 1 Response : {"type":"health.check","connection_id":"420bca1a-cb7e-41dd-b502-24507b3e655c","cid":"*","me":{"id":"henry","role":"user","created_at":"2020-03-03T18:28:53.948145Z","updated_at":"2020-03-03T18:28:54.695303Z","last_active":"2020-03-03T18:30:37.560865768Z","banned":false,"online":true,"invisible":false,"devices":[],"mutes":[],"unread_count":1,"total_unread_count":1,"unread_channels":1,"image":"https://robohash.org/henry"},"created_at":"2020-03-03T18:30:37.566002131Z"}
+D/StreamWebSocketService( 6400): Received event of type HEALTH_CHECK
+D/ClientState( 6400): setCurrentUser: com.getstream.sdk.chat.rest.User@68506a0
+I/StreamWebSocketService( 6400): send health check
+I/StreamWebSocketService( 6400): check connection health
+D/ClientState( 6400): setCurrentUser: com.getstream.sdk.chat.rest.User@68506a0
+D/StreamWebSocketService( 6400): WebSocket # 1 Response : {"type":"health.check","connection_id":"420bca1a-cb7e-41dd-b502-24507b3e655c","cid":"*","created_at":"2020-03-03T18:30:37.643559067Z"}
+D/StreamWebSocketService( 6400): Received event of type HEALTH_CHECK
+I/StreamWebSocketService( 6400): send health check
+D/StreamWebSocketService( 6400): WebSocket # 1 Response : {"type":"health.check","connection_id":"420bca1a-cb7e-41dd-b502-24507b3e655c","cid":"*","created_at":"2020-03-03T18:30:38.647848694Z"}
+D/StreamWebSocketService( 6400): Received event of type HEALTH_CHECK
+D/OkHttp  ( 6400): --> POST https://chat-us-east-1.stream-io-api.com/channels/messaging/henry-john/query?api_key=whe3wer2pf4r&user_id=henry&client_id=420bca1a-cb7e-41dd-b502-24507b3e655c
+D/OkHttp  ( 6400): Content-Type: application/json; charset=UTF-8
+D/OkHttp  ( 6400): Content-Length: 104
+D/OkHttp  ( 6400): {"data":{"members":["henry","john"]},"messages":{"limit":25},"presence":false,"state":true,"watch":true}
+D/OkHttp  ( 6400): --> END POST (104-byte body)
+D/OkHttp  ( 6400): <-- 201 Created https://chat-us-east-1.stream-io-api.com/channels/messaging/henry-john/query?api_key=whe3wer2pf4r&user_id=henry&client_id=420bca1a-cb7e-41dd-b502-24507b3e655c (281ms)
+D/OkHttp  ( 6400): Server: fasthttp
+D/OkHttp  ( 6400): Date: Tue, 03 Mar 2020 18:30:41 GMT
+D/OkHttp  ( 6400): Content-Type: application/json;charset=utf-8
+D/OkHttp  ( 6400): Content-Length: 2844
+D/OkHttp  ( 6400): Access-Control-Allow-Origin: *
+D/OkHttp  ( 6400): Access-Control-Allow-Headers: x-requested-with, content-type, accept, origin, authorization, x-csrftoken, x-stream-client, stream-auth-type
+D/OkHttp  ( 6400): Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+D/OkHttp  ( 6400): Cache-Control: no-cache
+D/OkHttp  ( 6400): X-Ratelimit-Reset: 1583260260
+D/OkHttp  ( 6400): Access-Control-Max-Age: 86400
+D/OkHttp  ( 6400): X-Ratelimit-Limit: 10000
+D/OkHttp  ( 6400): X-Ratelimit-Remaining: 9999
+D/OkHttp  ( 6400): Keep-Alive: timeout=8, max=1000
+D/StreamWebSocketService( 6400): WebSocket # 1 Response : {"type":"user.watching.start","cid":"messaging:henry-john","user":{"id":"henry","role":"user","created_at":"2020-03-03T18:28:53.948145Z","updated_at":"2020-03-03T18:28:54.695303Z","last_active":"2020-03-03T18:28:54.689594Z","banned":false,"online":true,"image":"https://robohash.org/henry"},"watcher_count":1,"created_at":"2020-03-03T18:30:41.387795625Z"}
+D/StreamWebSocketService( 6400): Received event of type USER_WATCHING_START
+D/OkHttp  ( 6400): {"channel":{"id":"henry-john","type":"messaging","cid":"messaging:henry-john","last_message_at":"2020-03-03T18:29:45.029468Z","created_at":"2020-03-03T18:29:33.816844Z","updated_at":"2020-03-03T18:29:33.816844Z","created_by":{"id":"john","role":"user","created_at":"2020-03-03T18:29:13.281855Z","updated_at":"2020-03-03T18:29:13.67464Z","last_active":"2020-03-03T18:29:13.66817Z","banned":false,"online":false,"image":"https://robohash.org/john"},"frozen":false,"member_count":2,"config":{"created_at":"2020-03-03T15:08:45.623095684Z","updated_at":"2020-03-03T15:08:45.623101573Z","name":"messaging","typing_events":true,"read_events":true,"connect_events":true,"search":true,"reactions":true,"replies":true,"mutes":true,"uploads":true,"url_enrichment":true,"message_retention":"infinite","max_message_length":5000,"automod":"disabled","automod_behavior":"flag","commands":[{"name":"giphy","description":"Post a random gif to the channel","args":"[text]","set":"fun_set"}]}},"messages":[{"id":"dc620cef-1b5a-46f2-bfe2-1737e
+D/OkHttp  ( 6400): <-- END HTTP (2844-byte body)
+D/ClientState( 6400): updateUsers
+I/Client  ( 6400): channel query: incoming watchers 0
+D/ClientState( 6400): updateUsers
+I/Client  ( 6400): channel query: merged watchers 0
