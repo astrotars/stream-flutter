@@ -11,3 +11,7 @@ Part 3 contains the final product. If you'd like to skip the tutorials and see t
 * [Part 1](https://github.com/nparsons08/stream-flutter/tree/1-social)
 * [Part 2](https://github.com/nparsons08/stream-flutter/tree/2-messaging)
 * [Part 3](https://github.com/nparsons08/stream-flutter/tree/3-channels)
+
+Other implemenations:
+
+* [Swift](https://github.com/psylinse/the-stream-swiftui/)
