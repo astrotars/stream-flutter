@@ -104,4 +104,9 @@ class ApiService {
       subscription.cancel();
     };
   }
+
+  Future<bool> startCall() async {
+    var result = await platform.invokeMethod<bool>('startCall', {});
+    return result;
+  }
 }

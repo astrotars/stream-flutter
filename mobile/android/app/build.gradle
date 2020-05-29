@@ -63,6 +63,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "io.getstream.client:stream-java:3.1.10"
     implementation 'com.github.getstream:stream-chat-android:3.3.0'
+    implementation ('com.voxeet.sdk:uxkit:2.2.0') { transitive = true }
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'

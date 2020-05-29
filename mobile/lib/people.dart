@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'api_service.dart';
 import 'chat.dart';
@@ -38,25 +39,43 @@ class _PeopleState extends State<People> {
                     onTap: () {
                       showDialog<String>(
                         context: context,
-                        builder: (BuildContext context) => AlertDialog(content: Text("Select an Action"), actions: [
-                          FlatButton(
-                            child: const Text('Follow'),
-                            onPressed: () async {
-                              await ApiService().follow(widget.account, user);
-                              Navigator.pop(context, "Followed");
-                            },
-                          ),
-                          FlatButton(
-                            child: const Text('Chat'),
-                            onPressed: () {
-                              Navigator.pop(context); // close dialog
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => PrivateChat(account: widget.account, user: user)),
-                              );
-                            },
-                          )
-                        ]),
+                        builder: (BuildContext context) => AlertDialog(
+                            content: Text("Select an Action"),
+                            actions: [
+                              FlatButton(
+                                child: const Text('Follow'),
+                                onPressed: () async {
+                                  await ApiService()
+                                      .follow(widget.account, user);
+                                  Navigator.pop(context, "Followed");
+                                },
+                              ),
+                              FlatButton(
+                                child: const Text('Chat'),
+                                onPressed: () {
+                                  Navigator.pop(context); // close dialog
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => PrivateChat(
+                                            account: widget.account,
+                                            user: user)),
+                                  );
+                                },
+                              ),
+                              FlatButton(
+                                child: const Text('Call'),
+                                onPressed: () async {
+                                  var status = await Permission.microphone.request();
+
+                                  if(status.isGranted) {
+                                    await ApiService().startCall();
+                                  }
+
+                                  Navigator.pop(context); // close dialog
+                                },
+                              ),
+                            ]),
                       ).then<void>((String message) {
                         // The value passed to Navigator.pop() or null.
                         if (message != null) {

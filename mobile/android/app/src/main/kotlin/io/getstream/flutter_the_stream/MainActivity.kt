@@ -1,6 +1,7 @@
 package io.getstream.flutter_the_stream
 
 import android.os.Bundle
+import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.getstream.sdk.chat.StreamChat
 import com.getstream.sdk.chat.enums.FilterObject
@@ -10,34 +11,53 @@ import com.getstream.sdk.chat.model.ModelType
 import com.getstream.sdk.chat.rest.Message
 import com.getstream.sdk.chat.rest.User
 import com.getstream.sdk.chat.rest.core.ChatChannelEventHandler
-import com.getstream.sdk.chat.rest.interfaces.*
+import com.getstream.sdk.chat.rest.interfaces.CompletableCallback
+import com.getstream.sdk.chat.rest.interfaces.MessageCallback
+import com.getstream.sdk.chat.rest.interfaces.QueryChannelCallback
+import com.getstream.sdk.chat.rest.interfaces.QueryChannelListCallback
 import com.getstream.sdk.chat.rest.request.ChannelQueryRequest
-import com.getstream.sdk.chat.rest.request.ChannelWatchRequest
 import com.getstream.sdk.chat.rest.request.QueryChannelsRequest
 import com.getstream.sdk.chat.rest.response.ChannelState
 import com.getstream.sdk.chat.rest.response.CompletableResponse
 import com.getstream.sdk.chat.rest.response.MessageResponse
 import com.getstream.sdk.chat.rest.response.QueryChannelsResponse
-
+import com.voxeet.VoxeetSDK
+import com.voxeet.promise.solve.PromiseExec
+import com.voxeet.promise.solve.Solver
+import com.voxeet.sdk.json.ParticipantInfo
+import com.voxeet.sdk.models.Conference
+import com.voxeet.sdk.models.v1.CreateConferenceResult
+import com.voxeet.uxkit.controllers.VoxeetToolkit
 import io.flutter.app.FlutterActivity
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import io.getstream.cloud.CloudClient
 import io.getstream.core.models.Activity
-import java.util.*
 import io.getstream.core.options.Limit
-import io.flutter.plugin.common.EventChannel
+import java.util.*
 
 
 class MainActivity : FlutterActivity() {
   private val CHANNEL = "io.getstream/backend"
-  private val API_KEY = "<API_KEY>"
+  private val API_KEY = "whe3wer2pf4r"
   private val eventChannels: MutableMap<String, EventChannel> = mutableMapOf()
 
   override fun onCreate(savedInstanceState: Bundle?) {
 
     super.onCreate(savedInstanceState)
     GeneratedPluginRegistrant.registerWith(this)
+
+    VoxeetSDK.initialize(
+      "kpKQMBCtPTILT0dx3nLqHQ==",
+      "d2vKt_36l5mOGg9R4KguMTelAT8nhN0XH1YJE8oWcDA="
+    )
+    VoxeetSDK.instance().register(this)
+
+    VoxeetToolkit.initialize(application, VoxeetSDK.instance().eventBus)
+    VoxeetToolkit.instance().enableOverlay(true)
+    VoxeetToolkit.instance().setCurrentActivity(this)
+
 
     MethodChannel(flutterView, CHANNEL).setMethodCallHandler { call, result ->
       if (call.method == "setupChat") {
@@ -100,6 +120,8 @@ class MainActivity : FlutterActivity() {
         )
       } else if (call.method == "getChannels") {
         getChannels(result)
+      } else if (call.method == "startCall") {
+        startCall(result)
       } else {
         result.notImplemented()
       }
@@ -282,5 +304,27 @@ class MainActivity : FlutterActivity() {
         // handle errors
       }
     })
+  }
+
+  private fun startCall(flutterResult: MethodChannel.Result) {
+    VoxeetSDK.session().open(ParticipantInfo(UUID.randomUUID().toString(), "", ""))
+      .then { result: Boolean?, solver: Solver<Any?>? ->
+        VoxeetSDK.conference()
+          .create(UUID.randomUUID().toString())
+          .then(PromiseExec<CreateConferenceResult, String?> { result, solver ->
+            Log.i("Voxeet.CREATE", "created conference: ${result!!.conferenceId}")
+            VoxeetSDK.conference().fetchConference(result.conferenceId)
+              .then(PromiseExec<Conference, Any?> { conference, solver ->
+                VoxeetSDK.conference().join(conference!!).then(PromiseExec<Conference?, Any?> { result, solver ->
+                  Log.i("Voxeet.JOIN", "joined call: ${result}")
+                  flutterResult.success(true)
+                })
+                  .error { error -> Log.i("Voxeet.JOIN", "error ${error}") }
+              })
+              .error { error -> Log.i("Voxeet.Fetch", "error with conference: ${error}") }
+          })
+          .error { error -> Log.i("Voxeet.Conf.create", "error: ${error}") }
+      }
+      .error { error -> Log.i("LOGIN ERROR", "$error") }
   }
 }
